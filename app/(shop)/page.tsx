@@ -5,6 +5,8 @@ import { Suspense } from 'react';
 import { ArrowRight, Sparkles, ShieldCheck, Truck, Star, Users, Package, Zap } from 'lucide-react';
 import type { Product } from '@/types/product';
 import ProductCard from '@/components/shop/ProductCard';
+import dbConnect from '@/lib/db/mongoose';
+import { Product as ProductModel } from '@/lib/db/models/Product';
 
 export const metadata: Metadata = {
   title: 'Chief Supplies — Perlengkapan Pria Premium',
@@ -51,13 +53,13 @@ const SOCIAL_PROOF = [
 
 async function getFeaturedProducts(): Promise<Product[]> {
   try {
-    const base = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
-    const res = await fetch(`${base}/api/products?limit=4&sort=newest`, {
-      next: { revalidate: 60 },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.data ?? [];
+    await dbConnect();
+    const products = await ProductModel
+      .find({ is_active: true })
+      .sort({ createdAt: -1 })
+      .limit(4)
+      .lean();
+    return products as any;
   } catch {
     return [];
   }

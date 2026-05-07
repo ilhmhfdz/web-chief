@@ -7,6 +7,8 @@ import ProductGrid from '@/components/shop/ProductGrid';
 import Pagination from '@/components/shop/Pagination';
 import { ProductGridSkeleton } from '@/components/shop/ProductSkeleton';
 import type { ProductCategory, ProductsApiResponse, ProductsQueryParams } from '@/types/product';
+import dbConnect from '@/lib/db/mongoose';
+import { Product } from '@/lib/db/models/Product';
 
 // ============================================================
 // Metadata
@@ -30,20 +32,45 @@ async function fetchProducts(params: ProductsQueryParams): Promise<ProductsApiRe
     apiSort = 'newest'; // fallback — in production, API would support these
   }
 
-  const qs = new URLSearchParams();
-  qs.set('page', String(page));
-  qs.set('limit', String(limit));
-  if (category && category !== 'all') qs.set('category', category);
-  if (search) qs.set('search', search);
-  if (apiSort) qs.set('sort', apiSort);
+  await dbConnect();
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
-  const res = await fetch(`${baseUrl}/api/products?${qs.toString()}`, {
-    next: { revalidate: 60 },
-  });
+  // Build MongoDB filter
+  const filter: Record<string, unknown> = { is_active: true };
+  if (category && category !== 'all') filter.category = category;
+  if (search) {
+    filter.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } },
+      { tags: { $regex: search, $options: 'i' } },
+    ];
+  }
 
-  if (!res.ok) throw new Error('Failed to fetch products');
-  return res.json();
+  // Build MongoDB sort
+  const SORT_MAP: Record<string, Record<string, 1 | -1>> = {
+    newest: { createdAt: -1 },
+    oldest: { createdAt: 1 },
+    price_asc: { price: 1 },
+    price_desc: { price: -1 },
+  };
+  const sortQuery = SORT_MAP[apiSort ?? 'newest'] ?? SORT_MAP.newest;
+  const safePage = Math.max(1, page);
+  const safeLimit = Math.min(48, Math.max(1, limit));
+  const skip = (safePage - 1) * safeLimit;
+
+  const [products, total] = await Promise.all([
+    Product.find(filter).sort(sortQuery).skip(skip).limit(safeLimit).lean(),
+    Product.countDocuments(filter),
+  ]);
+
+  return {
+    data: products as any,
+    pagination: {
+      page: safePage,
+      limit: safeLimit,
+      total,
+      totalPages: Math.ceil(total / safeLimit),
+    },
+  };
 }
 
 // ============================================================
@@ -89,54 +116,27 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   const SortIcon = sortMeta?.icon ?? Flame;
 
   return (
-    <div className="section-container py-10 lg:py-14">
-      {/* ---- Page Header ---- */}
-      <div className="mb-8">
-        <p className="label-upper mb-2">Chief Supplies</p>
-        <div className="flex items-end justify-between gap-4 flex-wrap">
+    <div className="section-container py-8 lg:py-12">
+
+      {/* ── Page Header ── */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between gap-4">
           <div>
-            <h1 className="heading-lg">Katalog Produk</h1>
-            <p className="text-surface-sub mt-1 text-sm">
+            <h1 className="text-xl font-bold text-surface-ink tracking-tight">Katalog Produk</h1>
+            <p className="text-xs text-surface-sub mt-0.5">
               {pagination.total > 0
-                ? `Menampilkan ${products.length} dari ${pagination.total} produk`
+                ? `${pagination.total} produk tersedia`
                 : 'Tidak ada produk ditemukan'}
             </p>
           </div>
           {hasActiveFilters && (
-            <div className="flex items-center gap-1.5 text-xs text-surface-ink bg-surface-raised border border-surface-muted px-3 py-1.5 rounded uppercase tracking-wider font-semibold">
-              <Filter className="w-3 h-3" />
+            <div className="flex items-center gap-1.5 text-[10px] text-surface-ink bg-surface-raised border border-surface-muted px-2.5 py-1 rounded-full uppercase tracking-wider font-bold">
+              <Filter className="w-2.5 h-2.5" />
               Filter aktif
             </div>
           )}
         </div>
       </div>
-
-      {/* ---- Sort context banner ---- */}
-      {sortMeta && (
-        <div className="flex items-center gap-3 mb-6 p-3.5 bg-surface-raised border border-surface-muted rounded-lg">
-          <div className={`w-8 h-8 rounded flex items-center justify-center shrink-0 ${
-            params.sort === 'popular'    ? 'bg-orange-100' :
-            params.sort === 'bestseller' ? 'bg-amber-100'  :
-            'bg-surface-overlay'
-          }`}>
-            <SortIcon className={`w-4 h-4 ${
-              params.sort === 'popular'    ? 'text-orange-500' :
-              params.sort === 'bestseller' ? 'text-amber-600'  :
-              'text-surface-sub'
-            }`} />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-surface-ink">{sortMeta.label}</p>
-            <p className="text-xs text-surface-sub">{sortMeta.description}</p>
-          </div>
-          {/* BUG-009: Disclaimer when sort is popular/bestseller but API falls back to newest */}
-          {(params.sort === 'popular' || params.sort === 'bestseller') && (
-            <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded shrink-0">
-              Data: Terbaru
-            </span>
-          )}
-        </div>
-      )}
 
       {/* ---- Main layout: Sidebar + Content ---- */}
       <div className="flex gap-8 items-start">

@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { ShoppingCart } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/format';
+import dbConnect from '@/lib/db/mongoose';
+import { Order } from '@/lib/db/models/Order';
 
 export const metadata: Metadata = { title: 'Pesanan' };
 
@@ -22,12 +24,13 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 async function fetchOrders(): Promise<Order[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
   try {
-    const res = await fetch(`${baseUrl}/api/orders`, { next: { revalidate: 30 } });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.data ?? [];
+    await dbConnect();
+    const orders = await Order.find()
+      .sort({ createdAt: -1 })
+      .limit(100)
+      .lean();
+    return orders as any;
   } catch {
     return [];
   }

@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingBag, PackageX, Check, Star, Trophy, Flame, Lock, ArrowRight, X } from 'lucide-react';
+import { ShoppingBag, PackageX, Check, Star, Trophy, Flame, Lock, ArrowRight, X, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,9 +20,7 @@ import { toast } from 'sonner';
 
 interface ProductCardProps {
   product: Product;
-  /** Animation delay for staggered grid entry */
   index?: number;
-  /** Current sort mode to decide which extra badge to show */
   sortMode?: ProductsQueryParams['sort'];
 }
 
@@ -33,15 +31,15 @@ interface ProductCardProps {
 function StockBadge({ stock }: { stock: number }) {
   if (stock === 0) {
     return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white bg-red-600 px-2.5 py-1 rounded-sm uppercase tracking-wider shadow-sm">
-        <PackageX className="w-3 h-3" />
+      <span className="inline-flex items-center gap-1 text-[9px] font-bold text-white bg-red-500 px-2 py-0.5 rounded-full uppercase tracking-wider">
+        <PackageX className="w-2.5 h-2.5" />
         Habis
       </span>
     );
   }
   if (stock <= 5) {
     return (
-      <span className="inline-flex items-center text-[10px] font-bold text-accent-dark bg-white/90 backdrop-blur-sm border border-accent-dark/20 px-2.5 py-1 rounded-sm uppercase tracking-wider shadow-sm">
+      <span className="inline-flex items-center text-[9px] font-bold text-amber-700 bg-amber-50/90 backdrop-blur-sm border border-amber-200 px-2 py-0.5 rounded-full uppercase tracking-wider">
         Sisa {stock}
       </span>
     );
@@ -57,13 +55,12 @@ function CategoryBadge({ category }: { category: Product['category'] }) {
     accessories: 'Aksesoris',
   };
   return (
-    <span className="bg-white/90 backdrop-blur-sm text-surface-ink text-[10px] font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider border border-surface-muted shadow-sm">
+    <span className="bg-white/85 backdrop-blur-sm text-surface-ink text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
       {LABELS[category]}
     </span>
   );
 }
 
-/** Mini star rating row */
 function StarRow({ rating, reviewCount }: { rating: number; reviewCount: number }) {
   return (
     <div className="flex items-center gap-1 mt-1">
@@ -71,41 +68,31 @@ function StarRow({ rating, reviewCount }: { rating: number; reviewCount: number 
         {Array.from({ length: 5 }, (_, i) => (
           <Star
             key={i}
-            className={`w-3 h-3 ${i < Math.round(rating)
+            className={`w-2.5 h-2.5 ${
+              i < Math.round(rating)
                 ? 'fill-amber-400 text-amber-400'
                 : 'fill-surface-muted text-surface-muted'
-              }`}
+            }`}
           />
         ))}
       </div>
-      <span className="text-[11px] text-surface-sub font-medium">
-        {rating.toFixed(1)} ({reviewCount})
+      <span className="text-[10px] text-surface-sub font-medium">
+        {rating.toFixed(1)}
+        <span className="text-surface-border ml-0.5">({reviewCount})</span>
       </span>
     </div>
   );
 }
 
-/** "200+ Terjual" badge */
 function SoldBadge({ count }: { count: number }) {
   if (count < 50) return null;
   return (
     <span className="text-[10px] text-surface-sub font-medium">
-      {formatSoldCount(count)} Terjual
+      {formatSoldCount(count)} terjual
     </span>
   );
 }
 
-/** "Terlaris — 100+/bln" shown in bestseller mode */
-function BestsellerLabel({ monthlySold }: { monthlySold: number }) {
-  return (
-    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-sm">
-      <Trophy className="w-2.5 h-2.5" />
-      {monthlySold}+ terjual/bln
-    </span>
-  );
-}
-
-/** Floating top badge for popular / bestseller */
 function TopBadge({
   isPopular,
   isBestseller,
@@ -117,29 +104,27 @@ function TopBadge({
 }) {
   if (sortMode === 'popular' && isPopular) {
     return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white bg-orange-500 px-2.5 py-1 rounded-sm uppercase tracking-wider shadow-sm">
-        <Flame className="w-3 h-3" /> Populer
+      <span className="inline-flex items-center gap-1 text-[9px] font-bold text-white bg-orange-500 px-2 py-0.5 rounded-full uppercase tracking-wider">
+        <Flame className="w-2.5 h-2.5" /> Populer
       </span>
     );
   }
   if (sortMode === 'bestseller' && isBestseller) {
     return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white bg-amber-500 px-2.5 py-1 rounded-sm uppercase tracking-wider shadow-sm">
-        <Trophy className="w-3 h-3" /> Terlaris
+      <span className="inline-flex items-center gap-1 text-[9px] font-bold text-white bg-amber-500 px-2 py-0.5 rounded-full uppercase tracking-wider">
+        <Trophy className="w-2.5 h-2.5" /> Terlaris
       </span>
     );
   }
   if (isPopular && !sortMode) {
     return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white bg-orange-500 px-2.5 py-1 rounded-sm uppercase tracking-wider shadow-sm">
-        <Flame className="w-3 h-3" /> Populer
+      <span className="inline-flex items-center gap-1 text-[9px] font-bold text-white bg-orange-500 px-2 py-0.5 rounded-full uppercase tracking-wider">
+        <Flame className="w-2.5 h-2.5" /> Populer
       </span>
     );
   }
   return null;
 }
-// Auth Login Prompt — shown inline when user is not logged in
-
 
 interface LoginPromptProps {
   callbackUrl: string;
@@ -153,45 +138,40 @@ function LoginPrompt({ callbackUrl, onDismiss }: LoginPromptProps) {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 8, scale: 0.96 }}
       transition={{ duration: 0.22, ease: 'easeOut' }}
-      className="absolute bottom-0 left-0 right-0 z-30 m-2.5 rounded-md overflow-hidden shadow-xl"
+      className="absolute bottom-0 left-0 right-0 z-30 m-2 rounded-xl overflow-hidden shadow-xl"
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Glassmorphism card */}
-      <div className="bg-surface-ink/95 backdrop-blur-md text-white px-4 py-3.5 flex flex-col gap-2.5">
-        {/* Header row */}
+      <div className="bg-surface-ink/96 backdrop-blur-md text-white px-4 py-3 flex flex-col gap-2.5">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-              <Lock className="w-3.5 h-3.5 text-white" />
+            <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+              <Lock className="w-3 h-3 text-white" />
             </div>
             <div>
-              <p className="text-[12px] font-bold leading-tight">Login diperlukan</p>
-              <p className="text-[10px] text-white/60 leading-tight mt-0.5">
+              <p className="text-[11px] font-bold leading-tight">Login diperlukan</p>
+              <p className="text-[10px] text-white/55 leading-tight mt-0.5">
                 Masuk untuk menambah ke keranjang
               </p>
             </div>
           </div>
           <button
             onClick={onDismiss}
-            className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors shrink-0 mt-0.5"
+            className="w-5 h-5 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors shrink-0 mt-0.5"
             aria-label="Tutup"
           >
-            <X className="w-3 h-3 text-white" />
+            <X className="w-2.5 h-2.5 text-white" />
           </button>
         </div>
-
-        {/* CTA row */}
         <div className="flex gap-2">
           <Link
             href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-            className="flex-1 flex items-center justify-center gap-1.5 bg-white text-surface-ink text-[11px] font-bold py-2 rounded-sm hover:bg-white/90 transition-colors"
+            className="flex-1 flex items-center justify-center gap-1.5 bg-white text-surface-ink text-[10px] font-bold py-1.5 rounded-lg hover:bg-white/90 transition-colors"
           >
-            Masuk Sekarang
-            <ArrowRight className="w-3 h-3" />
+            Masuk <ArrowRight className="w-2.5 h-2.5" />
           </Link>
           <Link
             href={`/register?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-            className="flex-1 flex items-center justify-center gap-1.5 border border-white/30 text-white text-[11px] font-bold py-2 rounded-sm hover:bg-white/10 transition-colors"
+            className="flex-1 flex items-center justify-center border border-white/25 text-white text-[10px] font-bold py-1.5 rounded-lg hover:bg-white/10 transition-colors"
           >
             Daftar
           </Link>
@@ -211,10 +191,8 @@ export default function ProductCard({ product, index = 0, sortMode }: ProductCar
   const outOfStock = product.stock === 0;
   const [isJustAdded, setIsJustAdded] = useState(false);
 
-  // Attach dummy sales data by catalog index
   const sales = getSalesData(index);
 
-  /** Unified handler for both desktop overlay and mobile button */
   const handleAddToCart = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
@@ -223,17 +201,15 @@ export default function ProductCard({ product, index = 0, sortMode }: ProductCar
       if (outOfStock) return;
 
       addItem(product);
-      
-      // Temporary success state for 1 second
-      setIsJustAdded(true);
-      setTimeout(() => setIsJustAdded(false), 1000);
 
-      // IMP-014: Toast notification on successful add to cart (optional, keeping for safety)
+      setIsJustAdded(true);
+      setTimeout(() => setIsJustAdded(false), 1200);
+
       if (!inCart) {
-        toast.success(`${product.name.length > 30 ? product.name.slice(0, 30) + '…' : product.name} ditambahkan`, {
-          description: formatPrice(product.price),
-          duration: 2500,
-        });
+        toast.success(
+          product.name.length > 28 ? product.name.slice(0, 28) + '…' : product.name,
+          { description: formatPrice(product.price), duration: 2200 }
+        );
       }
     },
     [inCart, outOfStock, addItem, product]
@@ -241,29 +217,28 @@ export default function ProductCard({ product, index = 0, sortMode }: ProductCar
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.06, ease: 'easeOut' }}
-      className="group bg-white flex flex-col transition-all duration-300"
+      transition={{ duration: 0.35, delay: index * 0.05, ease: 'easeOut' }}
+      className="group flex flex-col"
     >
-      {/* Product Image */}
-      <div className="relative block aspect-[4/5] bg-surface-raised mb-3 rounded-sm border border-surface-muted group-hover:border-surface-border transition-colors z-0">
+      {/* ── Product Image ── */}
+      <div className="relative block aspect-square bg-surface-raised rounded-xl overflow-hidden mb-2.5 border border-surface-muted/60 group-hover:border-surface-border transition-colors duration-300 z-0">
         <Link href={`/catalog/${product.slug}`} className="block w-full h-full">
           <Image
             src={product.image_url}
             alt={product.name}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className={`object-cover rounded-sm transition-transform duration-700 group-hover:scale-105 ${outOfStock ? 'opacity-50 grayscale' : ''
-              }`}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className={`object-cover transition-transform duration-500 group-hover:scale-[1.04] ${
+              outOfStock ? 'opacity-40 grayscale' : ''
+            }`}
           />
         </Link>
 
-        {/* Top-left: category + popular/bestseller badge */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1 pointer-events-none z-10">
-          <div className="flex items-start gap-1.5 flex-wrap">
-            <CategoryBadge category={product.category} />
-          </div>
+        {/* Top-left: category + popular badge */}
+        <div className="absolute top-2 left-2 flex flex-col gap-1 pointer-events-none z-10">
+          <CategoryBadge category={product.category} />
           <TopBadge
             isPopular={sales.isPopular}
             isBestseller={sales.isBestseller}
@@ -272,90 +247,83 @@ export default function ProductCard({ product, index = 0, sortMode }: ProductCar
         </div>
 
         {/* Top-right: stock badge */}
-        <div className="absolute top-3 right-3 pointer-events-none z-10">
+        <div className="absolute top-2 right-2 pointer-events-none z-10">
           <StockBadge stock={product.stock} />
         </div>
 
-        {/* ── Hover Add-to-Cart Overlay (Desktop) ── */}
-        <div className="absolute bottom-0 left-0 right-0 p-3 z-20 hidden lg:flex translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-[transform,opacity] duration-300 ease-out">
+        {/* ── Desktop hover overlay ── */}
+        <div className="absolute inset-0 bg-surface-ink/0 group-hover:bg-surface-ink/5 transition-colors duration-300 hidden lg:block" />
+        <div className="absolute bottom-0 left-0 right-0 p-2.5 z-20 hidden lg:flex translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-[transform,opacity] duration-300 ease-out">
           <button
             onClick={handleAddToCart}
             disabled={outOfStock}
-            className={`w-full flex items-center justify-center gap-2 py-3 rounded-sm text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
-                isJustAdded
-                  ? 'bg-green-600 text-white scale-[1.02]'
-                  : outOfStock
-                    ? 'bg-surface-ink/50 text-white cursor-not-allowed backdrop-blur-sm'
-                    : 'bg-surface-ink text-white hover:bg-surface-ink/90 shadow-lg active:scale-95'
-              }`}
+            className={`w-full flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all duration-200 ${
+              isJustAdded
+                ? 'bg-green-600 text-white'
+                : outOfStock
+                ? 'bg-surface-ink/40 text-white cursor-not-allowed backdrop-blur-sm'
+                : 'bg-surface-ink text-white hover:bg-surface-ink/90 shadow-lg active:scale-[0.98]'
+            }`}
           >
             {isJustAdded ? (
               <>
-                <Check className="w-4 h-4" />
-                Berhasil Ditambahkan
+                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                Ditambahkan
               </>
             ) : outOfStock ? (
               'Stok Habis'
             ) : (
               <>
-                <ShoppingBag className="w-4 h-4" />
-                Tambah ke Keranjang
+                <ShoppingBag className="w-3.5 h-3.5" />
+                Tambah Keranjang
               </>
             )}
           </button>
         </div>
       </div>
 
-      {/* Product Info */}
-      <div className="flex flex-col flex-1 px-1">
+      {/* ── Product Info ── */}
+      <div className="flex flex-col flex-1 px-0.5">
         <Link href={`/catalog/${product.slug}`}>
-          <h3 className="text-sm font-semibold text-surface-ink group-hover:text-surface-sub transition-colors duration-200 line-clamp-2 leading-snug">
+          <h3 className="text-[12px] sm:text-[13px] font-semibold text-surface-ink group-hover:text-surface-sub transition-colors duration-200 line-clamp-2 leading-snug">
             {product.name}
           </h3>
         </Link>
 
-        {/* Rating */}
         <StarRow rating={sales.rating} reviewCount={sales.reviewCount} />
 
-        {/* Price + Sold */}
         <div className="flex items-center justify-between mt-1.5 flex-wrap gap-1">
-          <p className="text-sm font-bold text-surface-ink">
+          <p className="text-[13px] font-bold text-surface-ink">
             {formatPrice(product.price)}
           </p>
           <SoldBadge count={sales.soldCount} />
         </div>
 
-        {/* Terlaris monthly sold label (shown only in bestseller mode) */}
-        {(sortMode === 'bestseller' || sortMode === undefined) && sales.isBestseller && (
-          <div className="mt-1.5">
-            <BestsellerLabel monthlySold={sales.monthlySold} />
-          </div>
-        )}
-
         {/* ── Mobile Add to Cart ── */}
-        <div className="mt-auto pt-3 lg:hidden">
+        <div className="mt-2 lg:hidden">
           <button
             onClick={handleAddToCart}
             disabled={outOfStock}
-            className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg border-2 text-[11px] font-black uppercase tracking-[0.05em] transition-all duration-300 active:scale-90 ${
+            aria-label={outOfStock ? 'Stok habis' : 'Tambah ke keranjang'}
+            className={`w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all duration-300 active:scale-95 ${
               isJustAdded
-                ? 'bg-green-50 text-green-700 border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.2)]'
+                ? 'bg-green-600 text-white shadow-sm'
                 : outOfStock
-                  ? 'bg-surface-raised text-surface-sub border-surface-muted cursor-not-allowed opacity-50'
-                  : 'bg-white text-surface-ink border-surface-ink shadow-sm hover:bg-surface-ink hover:text-white'
+                ? 'bg-surface-raised text-surface-sub cursor-not-allowed opacity-50'
+                : 'bg-surface-ink text-white hover:bg-surface-ink/85 shadow-sm'
             }`}
           >
             {isJustAdded ? (
               <>
-                <Check className="w-4 h-4 stroke-[3]" />
-                <span>Dalam Keranjang</span>
+                <Check className="w-3 h-3 stroke-[3]" />
+                <span>Ditambahkan</span>
               </>
             ) : outOfStock ? (
               <span>Stok Habis</span>
             ) : (
               <>
-                <ShoppingBag className="w-4 h-4 stroke-[2.5]" />
-                <span>Tambah Keranjang</span>
+                <Plus className="w-3 h-3 stroke-[3]" />
+                <span>Keranjang</span>
               </>
             )}
           </button>

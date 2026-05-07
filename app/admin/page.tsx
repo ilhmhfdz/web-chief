@@ -9,6 +9,11 @@ import {
 } from 'lucide-react';
 import StatCard from '@/components/admin/StatCard';
 import { formatPrice } from '@/lib/utils/format';
+import dbConnect from '@/lib/db/mongoose';
+import { Product } from '@/lib/db/models/Product';
+import { Order } from '@/lib/db/models/Order';
+import { User } from '@/lib/db/models/User';
+import { KnowledgeBase } from '@/lib/db/models/KnowledgeBase';
 
 export const metadata: Metadata = { title: 'Dashboard' };
 
@@ -39,13 +44,42 @@ async function fetchDashboardData(): Promise<{
   stats: AdminStats;
   recentOrders: RecentOrder[];
 }> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
   try {
-    const res = await fetch(`${baseUrl}/api/admin/stats`, {
-      next: { revalidate: 30 },
-    });
-    if (!res.ok) throw new Error('Failed');
-    return res.json();
+    await dbConnect();
+
+    const [
+      totalProducts,
+      totalOrders,
+      totalUsers,
+      totalKnowledgeDocs,
+      revenueAgg,
+      recentOrders,
+    ] = await Promise.all([
+      Product.countDocuments({ is_active: true }),
+      Order.countDocuments(),
+      User.countDocuments({ role: 'customer' }),
+      KnowledgeBase.distinct('metadata.source').then((s: string[]) => s.length),
+      Order.aggregate([
+        { $match: { status: { $in: ['paid', 'processing', 'shipped', 'delivered'] } } },
+        { $group: { _id: null, total: { $sum: '$total_price' } } },
+      ]),
+      Order.find()
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .select('status total_price createdAt')
+        .lean(),
+    ]);
+
+    return {
+      stats: {
+        totalProducts,
+        totalOrders,
+        totalUsers,
+        totalKnowledgeDocs,
+        totalRevenue: revenueAgg[0]?.total ?? 0,
+      },
+      recentOrders: recentOrders as unknown as RecentOrder[],
+    };
   } catch {
     return {
       stats: { totalProducts: 0, totalOrders: 0, totalUsers: 0, totalKnowledgeDocs: 0, totalRevenue: 0 },
