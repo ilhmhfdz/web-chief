@@ -1,0 +1,36 @@
+# Dependency folders
+node_modules/
+whatsapp-service/node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# WhatsApp Service build & session
+whatsapp-service/dist/
+whatsapp-service/.wwebjs_auth/
+whatsapp-service/.wwebjs_cache/
+whatsapp-service/session.json
+whatsapp-service/*.log
+
+# Production & Local Env Files
+.env
+.env.local
+.env.production
+.env.development.local
+.env.test.local
+whatsapp-service/.env
+
+# TypeScript
+tsconfig.tsbuildinfo
+
+# Mac System Files
+.DS_Store
+
+# Temporary/Task Files
+*.resolved
+ai_hairstyle_visual_plan.md
+CLAUDE.md
+improvement.md
+scratchpad_*.md
+implementation_plan.md
