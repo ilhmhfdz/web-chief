@@ -17,7 +17,7 @@ export default function WhatsAppFloatingButton() {
       dragMomentum={false}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      className="fixed bottom-24 right-4 z-50 flex flex-col items-end gap-3 lg:bottom-6 lg:right-6 cursor-grab active:cursor-grabbing touch-none"
+      className="fixed bottom-24 right-4 z-[55] flex flex-col items-end gap-3 lg:bottom-6 lg:right-6 cursor-grab active:cursor-grabbing touch-none"
     >
       {/* Tooltip */}
       <AnimatePresence>

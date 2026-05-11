@@ -29,9 +29,9 @@ export default function MobileBottomNav() {
     <nav className="fixed bottom-0 left-0 right-0 z-[45] lg:hidden bg-white border-t border-surface-muted safe-area-pb">
       <div className="flex items-center justify-around px-2 pt-1 pb-2">
         {NAV_ITEMS.map((item) => {
-          const href = item.isAuth ? (user ? '/login' : '/login') : item.href;
-          const isActive = pathname === item.href ||
-            (item.href !== '/' && pathname.startsWith(item.href));
+          const href = item.isAuth ? (user ? '/profile' : '/login') : item.href;
+          const isActive = pathname === href ||
+            (href !== '/' && pathname.startsWith(href));
 
           return (
             <Link

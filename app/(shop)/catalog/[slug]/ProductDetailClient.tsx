@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { formatPrice } from '@/lib/utils/format';
+import ProductChatButton from '@/components/shop/CatalogChatButton';
 import { getSalesData, formatSoldCount } from '@/lib/dummy-reviews';
 import type { Product } from '@/types/product';
 import ProductCard from '@/components/shop/ProductCard';
@@ -723,6 +724,9 @@ export default function ProductDetailClient({ product, related }: Props) {
               </button>
             </div>
           )}
+
+          {/* Chat Sekarang */}
+          <ProductChatButton productName={product.name} />
 
           {/* Divider */}
           <div className="divider" />

@@ -3,6 +3,7 @@ import React, { Suspense } from 'react';
 import { Filter, Flame, Trophy, Clock } from 'lucide-react';
 import CatalogFilters from '@/components/shop/CatalogFilters';
 import CatalogSidebar from '@/components/shop/CatalogSidebar';
+import MobileFilterDrawer from '@/components/shop/MobileFilterDrawer';
 import ProductGrid from '@/components/shop/ProductGrid';
 import Pagination from '@/components/shop/Pagination';
 import { ProductGridSkeleton } from '@/components/shop/ProductSkeleton';
@@ -116,11 +117,11 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   const SortIcon = sortMeta?.icon ?? Flame;
 
   return (
-    <div className="section-container py-8 lg:py-12">
+    <div className="section-container py-6 lg:py-12">
 
       {/* ── Page Header ── */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between gap-4">
+      <div className="mb-5">
+        <div className="flex items-center justify-between gap-3">
           <div>
             <h1 className="text-xl font-bold text-surface-ink tracking-tight">Katalog Produk</h1>
             <p className="text-xs text-surface-sub mt-0.5">
@@ -129,25 +130,29 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
                 : 'Tidak ada produk ditemukan'}
             </p>
           </div>
-          {hasActiveFilters && (
-            <div className="flex items-center gap-1.5 text-[10px] text-surface-ink bg-surface-raised border border-surface-muted px-2.5 py-1 rounded-full uppercase tracking-wider font-bold">
-              <Filter className="w-2.5 h-2.5" />
-              Filter aktif
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {hasActiveFilters && (
+              <div className="hidden sm:flex lg:hidden items-center gap-1.5 text-[10px] text-surface-ink bg-surface-raised border border-surface-muted px-2.5 py-1 rounded-full uppercase tracking-wider font-bold">
+                <Filter className="w-2.5 h-2.5" />
+                Filter aktif
+              </div>
+            )}
+            {/* Mobile Filter Drawer Trigger */}
+            <MobileFilterDrawer initialParams={params} />
+          </div>
         </div>
       </div>
 
       {/* ---- Main layout: Sidebar + Content ---- */}
       <div className="flex gap-8 items-start">
 
-        {/* Sidebar (desktop) */}
+        {/* Sidebar (desktop only) */}
         <div className="hidden lg:block w-60 xl:w-64 shrink-0 sticky top-24">
           <CatalogSidebar initialParams={params} />
         </div>
 
         {/* Main content column */}
-        <div className="flex-1 min-w-0 space-y-6">
+        <div className="flex-1 min-w-0 space-y-5">
 
           {/* Sort pills + search */}
           <CatalogFilters initialParams={params} />
@@ -168,7 +173,6 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
             />
           </Suspense>
 
-          {/* Pagination */}
           <Pagination
             currentPage={pagination.page}
             totalPages={pagination.totalPages}
@@ -176,6 +180,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
           />
         </div>
       </div>
+
     </div>
   );
 }

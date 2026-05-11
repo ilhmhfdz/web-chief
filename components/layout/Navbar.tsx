@@ -110,6 +110,25 @@ function UserDropdown() {
                 ID: {user.userId.slice(-8).toUpperCase()}
               </p>
             </div>
+            
+            <Link
+              href="/profile"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-surface-ink hover:bg-surface-raised transition-colors"
+            >
+              <User className="w-4 h-4" />
+              Profil Saya
+            </Link>
+            
+            <Link
+              href="/profile"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-surface-ink hover:bg-surface-raised transition-colors"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              Transaksi
+            </Link>
+
             {user.role === 'admin' && (
               <Link
                 href="/admin"
@@ -120,6 +139,7 @@ function UserDropdown() {
                 Admin Panel
               </Link>
             )}
+            
             <button
               onClick={handleLogout}
               className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-surface-sub hover:text-red-600 hover:bg-red-50 transition-colors"
@@ -291,6 +311,30 @@ export default function Navbar() {
                     <ChevronRight className="w-4 h-4 text-surface-muted" />
                   </Link>
                 ))}
+                {user && (
+                  <>
+                    <Link
+                      href="/profile"
+                      className="flex items-center justify-between px-3 py-2.5 rounded text-sm font-medium text-surface-ink hover:bg-surface-raised"
+                    >
+                      <span className="flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        Profil Saya
+                      </span>
+                      <ChevronRight className="w-4 h-4 text-surface-border" />
+                    </Link>
+                    <Link
+                      href="/profile"
+                      className="flex items-center justify-between px-3 py-2.5 rounded text-sm font-medium text-surface-ink hover:bg-surface-raised"
+                    >
+                      <span className="flex items-center gap-2">
+                        <ShoppingBag className="w-4 h-4" />
+                        Transaksi
+                      </span>
+                      <ChevronRight className="w-4 h-4 text-surface-border" />
+                    </Link>
+                  </>
+                )}
                 {user?.role === 'admin' && (
                   <Link
                     href="/admin"

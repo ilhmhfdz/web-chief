@@ -118,64 +118,68 @@ export default function CatalogFilters({ initialParams }: CatalogFiltersProps) {
       </form>
 
       {/* ── Mobile Category Scroll ── */}
-      <div className="lg:hidden -mx-4 px-4 overflow-x-auto no-scrollbar pb-0.5">
-        <div className="flex items-center gap-1.5 w-max">
-          {PRODUCT_CATEGORIES.map((cat) => {
-            const Icon = CATEGORY_ICONS[cat.value] || LayoutGrid;
-            const isActive = category === cat.value;
-            return (
-              <button
-                key={cat.value}
-                onClick={() => handleCategoryChange(cat.value)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all duration-200 whitespace-nowrap ${
-                  isActive
-                    ? 'bg-surface-ink text-white shadow-sm'
-                    : 'bg-surface-raised text-surface-sub border border-surface-muted hover:border-surface-border'
-                }`}
-              >
-                <Icon className={`w-3 h-3 ${isActive ? 'text-white' : 'text-surface-border'}`} />
-                {cat.label}
-              </button>
-            );
-          })}
+      <div className="lg:hidden relative">
+        <div className="-mx-4 px-4 overflow-x-auto no-scrollbar pb-0.5">
+          <div className="flex items-center gap-1.5 w-max pr-8">
+            {PRODUCT_CATEGORIES.map((cat) => {
+              const Icon = CATEGORY_ICONS[cat.value] || LayoutGrid;
+              const isActive = category === cat.value;
+              return (
+                <button
+                  key={cat.value}
+                  onClick={() => handleCategoryChange(cat.value)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all duration-200 whitespace-nowrap ${
+                    isActive
+                      ? 'bg-surface-ink text-white shadow-sm'
+                      : 'bg-surface-raised text-surface-sub border border-surface-muted hover:border-surface-border'
+                  }`}
+                >
+                  <Icon className={`w-3 h-3 ${isActive ? 'text-white' : 'text-surface-border'}`} />
+                  {cat.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
       {/* ── Sort pills ── */}
-      <div className="overflow-x-auto no-scrollbar -mx-4 px-4 lg:mx-0 lg:px-0">
-        <div className="flex items-center gap-1.5 w-max lg:flex-wrap lg:w-auto">
-          {SORT_PILLS.map(({ value, label, Icon }) => {
-            const isActive = sort === value;
-            const activeColor =
-              value === 'popular'
-                ? 'bg-orange-500 text-white border-orange-500 shadow-sm shadow-orange-500/20'
-                : value === 'bestseller'
-                ? 'bg-amber-500 text-white border-amber-500 shadow-sm shadow-amber-500/20'
-                : 'bg-surface-ink text-white border-surface-ink shadow-sm';
-            const iconColor =
-              !isActive && value === 'popular'
-                ? 'text-orange-400'
-                : !isActive && value === 'bestseller'
-                ? 'text-amber-400'
-                : isActive
-                ? 'text-white'
-                : 'text-surface-border';
+      <div className="relative">
+        <div className="overflow-x-auto no-scrollbar -mx-4 px-4 lg:mx-0 lg:px-0">
+          <div className="flex items-center gap-1.5 w-max lg:flex-wrap lg:w-auto pr-8 lg:pr-0">
+            {SORT_PILLS.map(({ value, label, Icon }) => {
+              const isActive = sort === value;
+              const activeColor =
+                value === 'popular'
+                  ? 'bg-orange-500 text-white border-orange-500 shadow-sm shadow-orange-500/20'
+                  : value === 'bestseller'
+                  ? 'bg-amber-500 text-white border-amber-500 shadow-sm shadow-amber-500/20'
+                  : 'bg-surface-ink text-white border-surface-ink shadow-sm';
+              const iconColor =
+                !isActive && value === 'popular'
+                  ? 'text-orange-400'
+                  : !isActive && value === 'bestseller'
+                  ? 'text-amber-400'
+                  : isActive
+                  ? 'text-white'
+                  : 'text-surface-border';
 
-            return (
-              <button
-                key={value}
-                onClick={() => handleSortChange(value)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border uppercase tracking-wider transition-all duration-200 whitespace-nowrap ${
-                  isActive
-                    ? activeColor
-                    : 'bg-white text-surface-sub border-surface-muted hover:text-surface-ink hover:border-surface-border'
-                }`}
-              >
-                <Icon className={`w-3 h-3 ${iconColor}`} />
-                {label}
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={value}
+                  onClick={() => handleSortChange(value)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border uppercase tracking-wider transition-all duration-200 whitespace-nowrap ${
+                    isActive
+                      ? activeColor
+                      : 'bg-white text-surface-sub border-surface-muted hover:text-surface-ink hover:border-surface-border'
+                  }`}
+                >
+                  <Icon className={`w-3 h-3 ${iconColor}`} />
+                  {label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
