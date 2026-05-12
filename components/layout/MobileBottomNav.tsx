@@ -22,8 +22,9 @@ export default function MobileBottomNav() {
   const pathname = usePathname();
   const { user } = useAuth();
 
-  // Don't show on admin pages
-  if (pathname.startsWith('/admin')) return null;
+  // Don't show on admin or product detail pages
+  const isProductDetail = pathname.startsWith('/catalog/') && pathname.length > '/catalog/'.length;
+  if (pathname.startsWith('/admin') || isProductDetail) return null;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-[45] lg:hidden bg-white border-t border-surface-muted safe-area-pb">

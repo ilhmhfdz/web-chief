@@ -18,9 +18,10 @@ interface Conversation {
 
 interface ProductChatButtonProps {
   productName: string;
+  iconOnly?: boolean;
 }
 
-export default function ProductChatButton({ productName }: ProductChatButtonProps) {
+export default function ProductChatButton({ productName, iconOnly = false }: ProductChatButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -104,14 +105,24 @@ export default function ProductChatButton({ productName }: ProductChatButtonProp
 
   return (
     <>
-      {/* ── Trigger button — fixed row di bawah CTA utama ── */}
-      <button
-        onClick={handleOpen}
-        className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg border-2 border-brand-500 text-brand-600 bg-brand-50 hover:bg-brand-500 hover:text-white font-semibold text-sm transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-brand-300"
-      >
-        <MessageSquare className="w-4 h-4" />
-        Chat Sekarang
-      </button>
+      {/* ── Trigger button ── */}
+      {iconOnly ? (
+        <button
+          onClick={handleOpen}
+          className="w-11 h-11 flex items-center justify-center rounded-xl border-2 border-surface-ink/30 text-surface-ink bg-white/40 backdrop-blur-md hover:bg-surface-ink hover:text-white hover:border-surface-ink transition-all duration-200 active:scale-[0.98] shrink-0"
+          aria-label="Chat Sekarang"
+        >
+          <MessageSquare className="w-5 h-5" />
+        </button>
+      ) : (
+        <button
+          onClick={handleOpen}
+          className="w-full flex items-center justify-center gap-2 py-2.5 px-5 rounded-xl border-2 border-surface-ink/30 text-surface-ink bg-white/40 backdrop-blur-md hover:bg-surface-ink hover:text-white hover:border-surface-ink font-bold text-sm uppercase tracking-wide transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-surface-ink/50 whitespace-nowrap"
+        >
+          <MessageSquare className="w-4 h-4" />
+          Chat Sekarang
+        </button>
+      )}
 
       {/* ── Popup ── */}
       {isOpen && (
@@ -124,7 +135,7 @@ export default function ProductChatButton({ productName }: ProductChatButtonProp
 
           {/* Panel — mobile: sits above bottom nav; desktop: bottom-left corner */}
           <div
-            className="fixed z-50 bottom-[68px] left-3 right-3 sm:bottom-6 sm:left-4 sm:right-auto sm:w-[23rem] flex flex-col bg-white rounded-2xl shadow-2xl border border-surface-muted overflow-hidden"
+            className="fixed z-50 bottom-[148px] left-3 right-3 sm:bottom-6 sm:left-4 sm:right-auto sm:w-[23rem] flex flex-col bg-white rounded-2xl shadow-2xl border border-surface-muted overflow-hidden"
             style={{ maxHeight: 'min(34rem, calc(100dvh - 80px))' }}
           >
             {/* Header */}

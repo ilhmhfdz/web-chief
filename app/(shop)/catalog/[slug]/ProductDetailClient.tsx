@@ -225,8 +225,8 @@ function AIRecommendationPanel({ product }: { product: Product }) {
                       type="button"
                       onClick={() => toggleHairType(opt.value)}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded border text-xs font-medium transition-all ${selectedHairTypes.includes(opt.value)
-                          ? 'bg-surface-ink text-white border-surface-ink'
-                          : 'bg-white text-surface-sub border-surface-muted hover:border-surface-ink'
+                        ? 'bg-surface-ink text-white border-surface-ink'
+                        : 'bg-white text-surface-sub border-surface-muted hover:border-surface-ink'
                         }`}
                     >
                       <span>{opt.emoji}</span> {opt.label}
@@ -308,10 +308,10 @@ function StarDisplay({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'm
         <Star
           key={i}
           className={`${sz} ${i < Math.floor(rating)
-              ? 'fill-amber-400 text-amber-400'
-              : i < rating
-                ? 'fill-amber-200 text-amber-200'
-                : 'fill-surface-muted text-surface-muted'
+            ? 'fill-amber-400 text-amber-400'
+            : i < rating
+              ? 'fill-amber-200 text-amber-200'
+              : 'fill-surface-muted text-surface-muted'
             }`}
         />
       ))}
@@ -446,8 +446,8 @@ function ReviewsSection({ index }: { index: number }) {
               <button
                 onClick={() => toggleHelpful(review.id)}
                 className={`inline-flex items-center gap-1.5 text-xs font-medium transition-colors ${helpfulClicked.has(review.id)
-                    ? 'text-surface-ink'
-                    : 'text-surface-border hover:text-surface-sub'
+                  ? 'text-surface-ink'
+                  : 'text-surface-border hover:text-surface-sub'
                   }`}
               >
                 <ThumbsUp className={`w-3.5 h-3.5 ${helpfulClicked.has(review.id) ? 'fill-surface-ink' : ''}`} />
@@ -478,6 +478,8 @@ export default function ProductDetailClient({ product, related }: Props) {
   const [imgError, setImgError] = useState(false);
   const [selectedImg, setSelectedImg] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [descExpanded, setDescExpanded] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
 
   const allImages = [product.image_url, ...(product.images || [])];
 
@@ -486,10 +488,12 @@ export default function ProductDetailClient({ product, related }: Props) {
   const outOfStock = product.stock === 0;
   const [isJustAdded, setIsJustAdded] = useState(false);
 
+  const sales = getSalesData(0);
+
   const handleAddToCart = () => {
     addItem(product);
     setIsJustAdded(true);
-    setTimeout(() => setIsJustAdded(false), 1000);
+    setTimeout(() => setIsJustAdded(false), 1500);
   };
 
   const handleBuyNow = () => {
@@ -501,29 +505,35 @@ export default function ProductDetailClient({ product, related }: Props) {
     product.category.charAt(0).toUpperCase() + product.category.slice(1);
 
   return (
-    <div className="section-container py-10 lg:py-14">
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-xs text-surface-sub mb-8">
+    <div className="min-h-screen bg-white pb-10 lg:pb-20">
+
+      {/* ─── MOBILE SLIM HEADER ─── */}
+      <div className="lg:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-surface-muted flex items-center gap-3 px-4 h-12">
+        <button onClick={() => router.back()} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-raised transition-colors shrink-0">
+          <ArrowLeft className="w-4 h-4 text-surface-ink" />
+        </button>
+        <p className="text-sm font-semibold text-surface-ink truncate flex-1">{product.name}</p>
+      </div>
+
+      {/* ─── DESKTOP BREADCRUMB ─── */}
+      <nav className="hidden lg:flex items-center gap-1.5 text-xs text-surface-sub section-container pt-8 pb-4">
         <Link href="/" className="hover:text-surface-ink transition-colors">Beranda</Link>
         <ChevronRight className="w-3 h-3" />
         <Link href="/catalog" className="hover:text-surface-ink transition-colors">Katalog</Link>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-surface-ink font-medium truncate max-w-[200px]">{product.name}</span>
+        <span className="text-surface-ink font-medium truncate max-w-[280px]">{product.name}</span>
       </nav>
 
-      {/* Main grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+      {/* ─── MAIN CONTENT ─── */}
+      {/* Mobile: stacked | Desktop: 2-column grid */}
+      <div className="lg:section-container lg:pb-16">
+        <div className="lg:grid lg:grid-cols-2 lg:gap-14 lg:items-start">
 
-        {/* ── Left: Product Image ── */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4 }}
-          className="lg:sticky lg:top-24 mb-8 lg:mb-0"
-        >
-          <div className="flex flex-col gap-4">
+          {/* ══ LEFT: Image Column ══ */}
+          <div className="lg:sticky lg:top-24">
+            {/* Main Image — full-bleed mobile, card desktop */}
             <div
-              className="relative aspect-square rounded-2xl border border-surface-muted bg-surface-raised overflow-hidden shadow-sm w-full mx-auto cursor-zoom-in group"
+              className="relative aspect-square w-full bg-surface-raised cursor-zoom-in overflow-hidden lg:rounded-2xl lg:border lg:border-surface-muted lg:shadow-sm"
               onClick={() => setIsLightboxOpen(true)}
             >
               {!imgError ? (
@@ -541,22 +551,29 @@ export default function ProductDetailClient({ product, related }: Props) {
                   <ShoppingBag className="w-16 h-16 text-surface-border" />
                 </div>
               )}
-              {/* Stock badge */}
               {outOfStock && (
-                <div className="absolute top-4 left-4 bg-surface-ink text-white text-xs font-semibold px-3 py-1 rounded">
-                  Stok Habis
+                <div className="absolute top-3 left-3 bg-black/80 text-white text-xs font-bold px-3 py-1 rounded">Stok Habis</div>
+              )}
+              {sales.isBestseller && !outOfStock && (
+                <div className="absolute top-3 right-3 inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50/95 border border-amber-200 px-2 py-0.5 rounded">
+                  🏆 Terlaris di {categoryLabel}
+                </div>
+              )}
+              {allImages.length > 1 && (
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2.5 py-1 rounded-full">
+                  {selectedImg + 1} / {allImages.length}
                 </div>
               )}
             </div>
 
             {/* Thumbnails */}
             {allImages.length > 1 && (
-              <div className="flex gap-2 justify-center w-full mx-auto overflow-x-auto pb-2">
+              <div className="flex gap-2 px-4 lg:px-0 pt-3 overflow-x-auto scrollbar-hide">
                 {allImages.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setSelectedImg(idx)}
-                    className={`relative w-20 h-20 rounded-md overflow-hidden border-2 shrink-0 ${selectedImg === idx ? 'border-accent-dark' : 'border-transparent opacity-60 hover:opacity-100'} transition-all`}
+                    className={`relative w-16 h-16 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${selectedImg === idx ? 'border-surface-ink' : 'border-transparent opacity-50 hover:opacity-80'}`}
                   >
                     <Image src={img} alt={`Thumbnail ${idx}`} fill className="object-cover" />
                   </button>
@@ -564,320 +581,260 @@ export default function ProductDetailClient({ product, related }: Props) {
               </div>
             )}
 
-            {/* Share & Favorit */}
-            <div className="flex justify-center items-center gap-6 mt-2 px-2 w-full mx-auto">
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-surface-sub font-medium">Share:</span>
-                <div className="flex gap-2">
-                  <button className="w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center hover:scale-110 transition-transform">
-                    <Facebook className="w-3.5 h-3.5" />
-                  </button>
-                  <button className="w-7 h-7 rounded-full bg-sky-400 text-white flex items-center justify-center hover:scale-110 transition-transform">
-                    <Twitter className="w-3.5 h-3.5" />
-                  </button>
-                  <button className="w-7 h-7 rounded-full bg-surface-ink text-white flex items-center justify-center hover:scale-110 transition-transform">
-                    <LinkIcon className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
-              <span className="w-px h-4 bg-surface-muted" />
-              <button className="flex items-center gap-1.5 text-sm font-medium text-surface-sub hover:text-red-500 transition-colors group">
-                <Heart className="w-5 h-5 group-hover:fill-red-500" />
+            {/* Desktop Share */}
+            <div className="hidden lg:flex items-center gap-3 mt-5 px-0">
+              <span className="text-xs text-surface-sub font-medium">Bagikan:</span>
+              <button className="w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center hover:scale-110 transition-transform"><Facebook className="w-3.5 h-3.5" /></button>
+              <button className="w-7 h-7 rounded-full bg-sky-400 text-white flex items-center justify-center hover:scale-110 transition-transform"><Twitter className="w-3.5 h-3.5" /></button>
+              <button className="w-7 h-7 rounded-full bg-surface-ink text-white flex items-center justify-center hover:scale-110 transition-transform"><LinkIcon className="w-3 h-3" /></button>
+              <button onClick={() => setIsFavorited(f => !f)} className="ml-auto flex items-center gap-1.5 text-sm text-surface-sub hover:text-red-500 transition-colors">
+                <Heart className={`w-4 h-4 ${isFavorited ? 'fill-red-500 text-red-500' : 'text-surface-border'}`} />
                 Favorit (1,1RB)
               </button>
             </div>
           </div>
-        </motion.div>
 
-        {/* ── Right: Product Info ── */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4 }}
-          className="space-y-6"
-        >
-          {/* Header Info */}
-          <div>
-            <div className="flex items-start gap-2 mb-2">
-              <h1 className="text-xl lg:text-2xl font-bold text-surface-ink leading-snug">{product.name}</h1>
-            </div>
+          {/* ══ RIGHT: Info Column ══ */}
+          <div className="px-4 lg:px-0 pt-5 lg:pt-0 space-y-4">
 
-            <div className="flex items-center gap-3 text-sm text-surface-sub mt-2">
-              <div className="flex items-center gap-1.5">
-                <span className="text-accent-dark font-bold border-b border-accent-dark leading-none">{getSalesData(0).rating.toFixed(1)}</span>
-                <StarDisplay rating={getSalesData(0).rating} />
-              </div>
-              <span className="w-px h-3 bg-surface-muted"></span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-surface-ink border-b border-surface-ink font-bold leading-none">{getSalesData(0).reviewCount}</span>
-                <span>Penilaian</span>
-              </div>
-              <span className="w-px h-3 bg-surface-muted"></span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-surface-ink font-bold leading-none">{formatSoldCount(getSalesData(0).soldCount)}</span>
-                <span>Terjual</span>
-              </div>
-            </div>
-          </div>
+            {/* Product Name */}
+            <h1 className="text-lg lg:text-2xl font-bold text-surface-ink leading-snug">{product.name}</h1>
 
-          {/* Price Box */}
-          <div className="bg-surface-raised border border-surface-muted/50 p-4 rounded-lg flex flex-col gap-2">
-            <div className="flex items-baseline gap-3">
-              <span className="text-3xl font-bold text-accent-dark font-display">
-                {formatPrice(product.price)}
-              </span>
-              <span className={`text-xs font-semibold px-2 py-0.5 rounded ${outOfStock ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'
-                }`}>
-                {outOfStock ? 'Stok Habis' : `${product.stock} tersedia`}
-              </span>
-            </div>
-            {getSalesData(0).isBestseller && (
-              <div className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-sm w-max mt-1">
-                🏆 Terlaris di {categoryLabel}
+            {/* Social Proof Row */}
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <div className="flex items-center gap-1">
+                <StarDisplay rating={sales.rating} />
+                <span className="text-xs font-bold text-amber-600 ml-0.5">{sales.rating.toFixed(1)}</span>
               </div>
-            )}
-          </div>
-
-          {/* Info Pengiriman */}
-          <div className="space-y-4 text-sm mt-4 pb-4 border-b border-surface-muted">
-            <div className="flex gap-4">
-              <span className="text-surface-sub w-24 shrink-0">Pengiriman</span>
-              <div className="space-y-1">
-                <div className="flex items-center gap-1.5 font-medium text-surface-ink">
-                  <Truck className="w-4 h-4 text-green-600" /> Garansi Tiba Besok
-                </div>
-                <p className="text-xs text-surface-sub">Dapatkan kompensasi jika pesanan terlambat.</p>
-              </div>
-            </div>
-            <div className="flex gap-4 mt-2">
-              <span className="text-surface-sub w-24 shrink-0">Jaminan</span>
-              <div className="flex flex-col gap-1 font-medium text-surface-ink">
-                <div className="flex items-center gap-1.5 text-surface-ink">
-                  <ShieldCheck className="w-4 h-4 text-red-600" /> 15 Hari Pengembalian
-                </div>
-                <div className="flex items-center gap-1.5 text-surface-ink">
-                  <ShieldCheck className="w-4 h-4 text-red-600" /> 100% Original & Aman
-                </div>
-              </div>
-            </div>
-
-            {/* Kuantitas */}
-            {!outOfStock && (
-              <div className="flex gap-4 items-center mt-6 pt-4">
-                <span className="text-surface-sub w-24 shrink-0">Kuantitas</span>
-                <div className="flex items-center">
-                  <div className="flex items-center border border-surface-muted rounded overflow-hidden bg-white">
-                    <button
-                      onClick={() => updateQuantity(product._id, quantity - 1)}
-                      disabled={quantity <= 0}
-                      className="w-8 h-8 flex items-center justify-center hover:bg-surface-raised transition-colors text-surface-ink disabled:opacity-40"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </button>
-                    <span className="w-12 text-sm font-semibold text-surface-ink text-center border-x border-surface-muted leading-[32px]">
-                      {quantity}
-                    </span>
-                    <button
-                      onClick={() => updateQuantity(product._id, Math.min(quantity + 1, product.stock))}
-                      disabled={quantity >= product.stock}
-                      className="w-8 h-8 flex items-center justify-center hover:bg-surface-raised transition-colors text-surface-ink disabled:opacity-40"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <span className="text-xs text-surface-sub ml-4">tersisa {product.stock} buah</span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Action Buttons */}
-          {!outOfStock && (
-            <div className="flex items-center gap-3 mt-6">
-              <button
-                onClick={handleAddToCart}
-                disabled={outOfStock || isJustAdded}
-                className={`flex-1 py-3 px-1 flex items-center justify-center gap-1.5 font-bold transition-all rounded-lg border-2 uppercase text-[10px] sm:text-xs tracking-wider whitespace-nowrap ${
-                  isJustAdded
-                    ? 'bg-green-50 text-green-700 border-green-500 shadow-sm'
-                    : 'bg-white text-surface-ink border-surface-ink hover:bg-surface-ink hover:text-white'
-                }`}
-              >
-                {isJustAdded ? (
-                  <>
-                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" /> 
-                    <span>Dalam Keranjang</span>
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" /> 
-                    <span>Masukkan Keranjang</span>
-                  </>
-                )}
-              </button>
-              <button
-                onClick={handleBuyNow}
-                disabled={outOfStock}
-                className="flex-1 py-3 px-1 flex items-center justify-center font-bold bg-accent-dark hover:bg-accent border-none text-white shadow-lg shadow-accent-dark/20 transition-all rounded-lg uppercase text-[10px] sm:text-xs tracking-wider whitespace-nowrap"
-              >
-                Beli Sekarang
+              <span className="w-px h-3 bg-surface-muted" />
+              <span className="text-xs text-surface-sub"><span className="font-bold text-surface-ink">{sales.reviewCount}</span> Penilaian</span>
+              <span className="w-px h-3 bg-surface-muted" />
+              <span className="text-xs text-surface-sub"><span className="font-bold text-surface-ink">{formatSoldCount(sales.soldCount)}</span> Terjual</span>
+              <button onClick={() => setIsFavorited(f => !f)} className="lg:hidden ml-auto flex items-center gap-1 text-xs">
+                <Heart className={`w-4 h-4 ${isFavorited ? 'fill-red-500 text-red-500' : 'text-surface-border'}`} />
+                <span className={isFavorited ? 'text-red-500' : 'text-surface-sub'}>1,1RB</span>
               </button>
             </div>
-          )}
 
-          {/* Chat Sekarang */}
-          <ProductChatButton productName={product.name} />
-
-          {/* Divider */}
-          <div className="divider" />
-
-          {/* Description */}
-          <div>
-            <p className="text-xs font-semibold text-surface-sub uppercase tracking-wider mb-3">
-              Deskripsi
-            </p>
-            <DescriptionRenderer text={product.description} />
-          </div>
-
-          {/* Tags */}
-          {product.tags.length > 0 && (
-            <div className="flex items-center flex-wrap gap-2 mt-4">
-              <Tag className="w-3.5 h-3.5 text-surface-border" />
-              {product.tags.map(tag => (
-                <span
-                  key={tag}
-                  className="text-xs px-2.5 py-1 rounded border border-surface-muted bg-surface-raised text-surface-sub font-medium"
-                >
-                  {tag}
+            {/* Price Box */}
+            <div className="bg-surface-raised border border-surface-muted/50 p-4 rounded-xl">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl lg:text-3xl font-bold text-surface-ink font-display">{formatPrice(product.price)}</span>
+                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${outOfStock ? 'bg-red-50 text-red-600 border-red-200' : 'bg-green-50 text-green-700 border-green-200'}`}>
+                  {outOfStock ? 'Stok Habis' : `${product.stock} tersedia`}
                 </span>
+              </div>
+            </div>
+
+            {/* Trust Badges */}
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { icon: <Truck className="w-5 h-5 text-green-600" />, label: 'Garansi Tiba Besok', bg: 'bg-green-50' },
+                { icon: <ShieldCheck className="w-5 h-5 text-blue-600" />, label: '15 Hari Return', bg: 'bg-blue-50' },
+                { icon: <CheckCircle className="w-5 h-5 text-purple-600" />, label: '100% Original', bg: 'bg-purple-50' },
+              ].map((badge, i) => (
+                <div key={i} className={`flex flex-col items-center gap-1.5 ${badge.bg} rounded-xl p-3 text-center border border-surface-muted/40`}>
+                  {badge.icon}
+                  <span className="text-[10px] font-semibold text-surface-sub leading-tight">{badge.label}</span>
+                </div>
               ))}
             </div>
-          )}
 
-          {/* Divider */}
-          <div className="divider" />
-          <AIRecommendationPanel product={product} />
+            {/* Quantity */}
+            {!outOfStock && inCart && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="flex items-center gap-3">
+                <span className="text-xs text-surface-sub font-medium">Jumlah:</span>
+                <div className="flex items-center border border-surface-muted rounded-xl overflow-hidden bg-white shadow-sm">
+                  <button onClick={() => updateQuantity(product._id, quantity - 1)} disabled={quantity <= 0} className="w-9 h-9 flex items-center justify-center hover:bg-surface-raised disabled:opacity-40 transition-colors"><Minus className="w-3.5 h-3.5" /></button>
+                  <span className="w-10 text-sm font-bold text-center border-x border-surface-muted leading-9">{quantity}</span>
+                  <button onClick={() => updateQuantity(product._id, Math.min(quantity + 1, product.stock))} disabled={quantity >= product.stock} className="w-9 h-9 flex items-center justify-center hover:bg-surface-raised disabled:opacity-40 transition-colors"><Plus className="w-3.5 h-3.5" /></button>
+                </div>
+                <span className="text-xs text-surface-sub">sisa {product.stock}</span>
+              </motion.div>
+            )}
 
-          {/* Back to catalog */}
-          <Link
-            href="/catalog"
-            className="inline-flex items-center gap-2 text-sm text-surface-sub hover:text-surface-ink transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Kembali ke Katalog
-          </Link>
-        </motion.div>
-      </div>
 
-      {/* Reviews Section */}
-      <ReviewsSection index={0} />
 
-      {/* Related Products */}
-      {related.length > 0 && (
-        <div className="mt-20">
-          <div className="divider mb-10" />
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <p className="label-upper mb-1">Kategori Serupa</p>
-              <h2 className="heading-md">Produk Terkait</h2>
+            {/* Description Collapsible */}
+            <div className="bg-white border border-surface-muted rounded-xl overflow-hidden">
+              <button onClick={() => setDescExpanded(d => !d)} className="w-full flex items-center justify-between px-4 py-3.5 text-left hover:bg-surface-raised/50 transition-colors">
+                <span className="text-xs font-bold text-surface-ink uppercase tracking-wider">Deskripsi Produk</span>
+                <ChevronRight className={`w-4 h-4 text-surface-sub transition-transform duration-200 ${descExpanded ? 'rotate-90' : ''}`} />
+              </button>
+              <AnimatePresence initial={false}>
+                {descExpanded && (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
+                    <div className="px-4 pb-4 pt-3 border-t border-surface-muted space-y-3">
+                      <DescriptionRenderer text={product.description} />
+                      {product.tags.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                          <Tag className="w-3 h-3 text-surface-border" />
+                          {product.tags.map(tag => (
+                            <span key={tag} className="text-[10px] px-2 py-0.5 rounded border border-surface-muted bg-surface-raised text-surface-sub font-medium">{tag}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-            <Link href="/catalog" className="text-sm text-surface-sub hover:text-surface-ink transition-colors flex items-center gap-1">
-              Lihat semua <ChevronRight className="w-3.5 h-3.5" />
+
+            {/* AI Panel */}
+            <AIRecommendationPanel product={product} />
+
+            {/* Mobile share */}
+            <div className="lg:hidden flex items-center gap-3 py-3 border-t border-surface-muted">
+              <span className="text-xs text-surface-sub font-medium">Bagikan:</span>
+              <button className="w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center hover:scale-110 transition-transform"><Facebook className="w-3.5 h-3.5" /></button>
+              <button className="w-7 h-7 rounded-full bg-sky-400 text-white flex items-center justify-center hover:scale-110 transition-transform"><Twitter className="w-3.5 h-3.5" /></button>
+              <button className="w-7 h-7 rounded-full bg-surface-ink text-white flex items-center justify-center hover:scale-110 transition-transform"><LinkIcon className="w-3 h-3" /></button>
+              <Link href="/catalog" className="ml-auto flex items-center gap-1 text-xs text-surface-sub hover:text-surface-ink">
+                <ArrowLeft className="w-3 h-3" /> Katalog
+              </Link>
+            </div>
+
+            {/* Desktop back link */}
+            <Link href="/catalog" className="hidden lg:inline-flex items-center gap-1.5 text-sm text-surface-sub hover:text-surface-ink transition-colors">
+              <ArrowLeft className="w-4 h-4" /> Kembali ke Katalog
             </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {related.map((p, index) => (
-              <ProductCard key={p._id} product={p} index={index} />
-            ))}
+        </div>
+      </div>
+
+      {/* ─── Reviews & Related ─── */}
+      <div className="section-container">
+        <ReviewsSection index={0} />
+        {related.length > 0 && (
+          <div className="mt-10">
+            <div className="divider mb-6" />
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="label-upper mb-0.5">Kategori Serupa</p>
+                <h2 className="heading-sm">Produk Terkait</h2>
+              </div>
+              <Link href="/catalog" className="text-xs text-surface-sub hover:text-surface-ink flex items-center gap-1 transition-colors">
+                Lihat semua <ChevronRight className="w-3 h-3" />
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {related.map((p, index) => (
+                <ProductCard key={p._id} product={p} index={index} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ══════════════════════════════════════════
+          UNIFIED STICKY BOTTOM CTA BAR
+          Mobile: compact icons + full Beli Sekarang
+          Desktop: product summary + 3 labeled buttons
+          ══════════════════════════════════════════ */}
+      <motion.div
+        initial={{ y: 80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 280, damping: 28, delay: 0.3 }}
+        className="fixed left-0 right-0 z-50 bg-white/50 backdrop-blur-xl border-t border-white/50 shadow-[0_-8px_30px_rgba(0,0,0,0.08)]
+          bottom-0"
+      >
+        {/* ─ MOBILE layout ─ */}
+        <div className="lg:hidden flex items-center gap-2 px-4 py-3"
+          style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
+        >
+          <ProductChatButton productName={product.name} iconOnly />
+          {!outOfStock && (
+            <button
+              onClick={handleAddToCart}
+              title="Tambah Keranjang"
+              className={`w-11 h-11 flex items-center justify-center rounded-xl border-2 shrink-0 transition-all active:scale-95 ${isJustAdded ? 'border-green-500 bg-green-50/50 backdrop-blur-md text-green-600' : 'border-surface-ink/30 bg-white/40 backdrop-blur-md text-surface-ink hover:bg-surface-ink hover:text-white hover:border-surface-ink'}`}
+            >
+              {isJustAdded ? <CheckCircle className="w-5 h-5" /> : <ShoppingCart className="w-5 h-5" />}
+            </button>
+          )}
+          <button
+            onClick={handleBuyNow}
+            disabled={outOfStock}
+            className="flex-1 h-11 flex items-center justify-center font-bold bg-surface-ink/90 backdrop-blur-md hover:bg-surface-ink active:scale-[0.98] text-white rounded-xl text-sm tracking-widest uppercase transition-all disabled:opacity-50 shadow-lg shadow-surface-ink/20"
+          >
+            {outOfStock ? 'Stok Habis' : 'Beli Sekarang'}
+          </button>
+        </div>
+
+        {/* ─ DESKTOP layout ─ */}
+        <div className="hidden lg:flex items-center gap-4 max-w-7xl mx-auto px-8 py-3">
+          {/* Product summary */}
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-surface-sub font-medium truncate">{product.name}</p>
+            <p className="text-lg font-bold text-surface-ink font-display">{formatPrice(product.price)}</p>
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="flex items-center gap-3 shrink-0">
+            {/* Chat */}
+            <ProductChatButton productName={product.name} />
+
+            {/* Keranjang */}
+            {!outOfStock && (
+              <button
+                onClick={handleAddToCart}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 font-bold text-sm uppercase tracking-wide transition-all active:scale-[0.98] whitespace-nowrap ${
+                  isJustAdded
+                    ? 'border-green-500 bg-green-50/50 backdrop-blur-md text-green-700'
+                    : 'border-surface-ink/30 bg-white/40 backdrop-blur-md text-surface-ink hover:bg-surface-ink hover:text-white hover:border-surface-ink'
+                }`}
+              >
+                {isJustAdded
+                  ? <><CheckCircle className="w-4 h-4" /> Ditambahkan</>
+                  : <><ShoppingCart className="w-4 h-4" /> Keranjang</>
+                }
+              </button>
+            )}
+
+            {/* Beli Sekarang */}
+            <button
+              onClick={handleBuyNow}
+              disabled={outOfStock}
+              className="flex items-center justify-center gap-2 px-8 py-2.5 rounded-xl font-bold bg-surface-ink/90 backdrop-blur-md hover:bg-surface-ink text-white text-sm uppercase tracking-wide transition-all active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-surface-ink/20 whitespace-nowrap"
+            >
+              {outOfStock ? 'Stok Habis' : 'Beli Sekarang'}
+            </button>
           </div>
         </div>
-      )}
+      </motion.div>
 
-      {/* Lightbox Modal */}
+      {/* ─── LIGHTBOX ─── */}
       <AnimatePresence>
         {isLightboxOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4"
-            onClick={() => setIsLightboxOpen(false)}
-          >
-            {/* Modal Container */}
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden"
-              style={{ maxHeight: 'calc(100vh - 48px)' }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Close Button */}
-              <button
-                className="absolute top-3 right-3 z-20 text-surface-sub hover:text-surface-ink transition-colors bg-white rounded-full p-1.5 shadow-md"
-                onClick={() => setIsLightboxOpen(false)}
-              >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4" onClick={() => setIsLightboxOpen(false)}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} transition={{ duration: 0.2 }} className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden" style={{ maxHeight: 'calc(100vh - 48px)' }} onClick={(e) => e.stopPropagation()}>
+              <button className="absolute top-3 right-3 z-20 text-surface-sub hover:text-surface-ink transition-colors bg-white rounded-full p-1.5 shadow-md" onClick={() => setIsLightboxOpen(false)}>
                 <XCircle className="w-6 h-6" />
               </button>
-
-              {/* Product Name Header */}
               <div className="px-5 py-4 border-b border-surface-muted">
-                <h3 className="text-sm font-bold text-surface-ink pr-10 leading-snug">
-                  {product.name}
-                </h3>
+                <h3 className="text-sm font-bold text-surface-ink pr-10 leading-snug">{product.name}</h3>
               </div>
-
               <div className="flex flex-col md:flex-row" style={{ height: 'min(520px, calc(100vh - 130px))' }}>
-                {/* Left: Main Image */}
                 <div className="relative flex-1 min-h-[260px] bg-surface-raised group">
-                  <Image
-                    src={allImages[selectedImg]}
-                    alt={product.name}
-                    fill
-                    className="object-contain p-4"
-                    quality={100}
-                  />
-                  
-                  {/* Navigation Arrows */}
+                  <Image src={allImages[selectedImg]} alt={product.name} fill className="object-contain p-4" quality={100} />
                   {allImages.length > 1 && (
                     <>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setSelectedImg(prev => (prev === 0 ? allImages.length - 1 : prev - 1)); }}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 hover:bg-white text-surface-ink flex items-center justify-center rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
+                      <button onClick={(e) => { e.stopPropagation(); setSelectedImg(p => p === 0 ? allImages.length - 1 : p - 1); }} className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 hover:bg-white text-surface-ink flex items-center justify-center rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
                         <ChevronLeft className="w-5 h-5" />
                       </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setSelectedImg(prev => (prev === allImages.length - 1 ? 0 : prev + 1)); }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 hover:bg-white text-surface-ink flex items-center justify-center rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
+                      <button onClick={(e) => { e.stopPropagation(); setSelectedImg(p => p === allImages.length - 1 ? 0 : p + 1); }} className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 hover:bg-white text-surface-ink flex items-center justify-center rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
                         <ChevronRight className="w-5 h-5" />
                       </button>
                     </>
                   )}
-
-                  {/* Image counter */}
                   {allImages.length > 1 && (
-                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2.5 py-1 rounded-full">
-                      {selectedImg + 1} / {allImages.length}
-                    </div>
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2.5 py-1 rounded-full">{selectedImg + 1} / {allImages.length}</div>
                   )}
                 </div>
-
-                {/* Right: Thumbnails (only if multiple images) */}
                 {allImages.length > 1 && (
                   <div className="w-full md:w-28 flex md:flex-col flex-row gap-2 p-3 border-t md:border-t-0 md:border-l border-surface-muted bg-surface-raised overflow-x-auto md:overflow-y-auto md:overflow-x-hidden shrink-0">
                     {allImages.map((img, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setSelectedImg(idx)}
-                        className={`relative shrink-0 w-16 h-16 md:w-full md:h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                          selectedImg === idx
-                            ? 'border-accent-dark ring-2 ring-accent-dark/30'
-                            : 'border-transparent opacity-60 hover:opacity-100 hover:border-surface-muted'
-                        }`}
-                      >
+                      <button key={idx} onClick={() => setSelectedImg(idx)} className={`relative shrink-0 w-16 h-16 md:w-full md:h-20 rounded-lg overflow-hidden border-2 transition-all ${selectedImg === idx ? 'border-accent-dark ring-2 ring-accent-dark/30' : 'border-transparent opacity-60 hover:opacity-100 hover:border-surface-muted'}`}>
                         <Image src={img} alt={`Thumb ${idx}`} fill className="object-cover" />
                       </button>
                     ))}
