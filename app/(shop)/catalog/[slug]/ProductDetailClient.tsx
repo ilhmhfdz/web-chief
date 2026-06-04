@@ -381,7 +381,7 @@ function ReviewsSection({ index }: { index: number }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
         {/* Score big */}
         <div className="bg-surface-raised border border-surface-muted rounded-xl p-6 flex flex-col items-center justify-center gap-2">
-          <p className="text-6xl font-bold font-display text-surface-ink leading-none">{sales.rating.toFixed(1)}</p>
+          <p className="text-6xl font-bold font-ecommerce text-surface-ink leading-none">{sales.rating.toFixed(1)}</p>
           <StarDisplay rating={sales.rating} size="md" />
           <p className="text-sm text-surface-sub">{sales.reviewCount} ulasan terverifikasi</p>
           <p className="text-xs text-surface-border mt-1">{formatSoldCount(sales.soldCount)} terjual</p>
@@ -598,7 +598,7 @@ export default function ProductDetailClient({ product, related }: Props) {
           <div className="px-4 lg:px-0 pt-5 lg:pt-0 space-y-4">
 
             {/* Product Name */}
-            <h1 className="text-lg lg:text-2xl font-bold text-surface-ink leading-snug">{product.name}</h1>
+            <h1 className="text-lg lg:text-2xl font-ecommerce font-bold text-surface-ink leading-snug">{product.name}</h1>
 
             {/* Social Proof Row */}
             <div className="flex items-center gap-2.5 flex-wrap">
@@ -619,7 +619,7 @@ export default function ProductDetailClient({ product, related }: Props) {
             {/* Price Box */}
             <div className="bg-surface-raised border border-surface-muted/50 p-4 rounded-xl">
               <div className="flex items-center gap-3">
-                <span className="text-2xl lg:text-3xl font-bold text-surface-ink font-display">{formatPrice(product.price)}</span>
+                <span className="text-2xl lg:text-3xl font-bold text-surface-ink font-ecommerce">{formatPrice(product.price)}</span>
                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${outOfStock ? 'bg-red-50 text-red-600 border-red-200' : 'bg-green-50 text-green-700 border-green-200'}`}>
                   {outOfStock ? 'Stok Habis' : `${product.stock} tersedia`}
                 </span>
@@ -766,7 +766,7 @@ export default function ProductDetailClient({ product, related }: Props) {
           {/* Product summary */}
           <div className="flex-1 min-w-0">
             <p className="text-xs text-surface-sub font-medium truncate">{product.name}</p>
-            <p className="text-lg font-bold text-surface-ink font-display">{formatPrice(product.price)}</p>
+            <p className="text-lg font-bold text-surface-ink font-ecommerce">{formatPrice(product.price)}</p>
           </div>
 
           {/* CTA Buttons */}

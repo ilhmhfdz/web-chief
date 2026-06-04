@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db/mongoose';
 import User from '@/lib/db/models/User';
 import { verifyJWT } from '@/lib/auth/jwt';
+import { getTokenFromCookies } from '@/lib/auth/getToken';
 
 /**
  * POST /api/admin/users/[id]/grant-credit
@@ -12,11 +13,8 @@ import { verifyJWT } from '@/lib/auth/jwt';
  */
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   // Verify admin auth
-  const token = req.headers
-    .get('cookie')
-    ?.split('; ')
-    .find((c) => c.startsWith('token='))
-    ?.split('=')[1];
+  // [SEC-06] Use standardized cookie helper instead of manual string-split
+  const token = getTokenFromCookies();
 
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 

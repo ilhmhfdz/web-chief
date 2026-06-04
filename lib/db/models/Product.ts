@@ -85,6 +85,17 @@ productSchema.pre('validate', function (next) {
   next();
 });
 
+// [DB-01] Compound indexes for product catalog queries:
+// - is_active + category + createdAt: browse by category sorted by newest
+// - is_active + price: price sort across catalog
+// - text index on name/description/tags: replaces slow $regex for search
+productSchema.index({ is_active: 1, category: 1, createdAt: -1 });
+productSchema.index({ is_active: 1, price: 1 });
+productSchema.index(
+  { name: 'text', description: 'text', tags: 'text' },
+  { weights: { name: 10, tags: 5, description: 1 }, name: 'product_text_search' }
+);
+
 // Use existing model if already compiled (for Next.js HMR)
 export const Product: Model<IProduct> = mongoose.models.Product || mongoose.model<IProduct>('Product', productSchema);
 export default Product;

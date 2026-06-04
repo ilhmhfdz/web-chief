@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { WhatsAppManager } from './whatsapp';
 import { generateResponse, ChatMessage } from './ragAgent';
 
@@ -14,13 +14,29 @@ if (!process.env.MONGODB_URI || !process.env.OPENAI_API_KEY) {
   process.exit(1);
 }
 
+if (!process.env.INTERNAL_API_SECRET) {
+  console.error('❌ FATAL: INTERNAL_API_SECRET must be set in your .env file.');
+  process.exit(1);
+}
+
 // ============================================================
 // Express App
 // ============================================================
 
 const PORT = Number(process.env.PORT ?? 3003);
+const INTERNAL_API_SECRET = process.env.INTERNAL_API_SECRET as string;
 const app = express();
 app.use(express.json());
+
+// [SEC-05] Internal secret middleware — protects management endpoints
+function requireInternalSecret(req: Request, res: Response, next: NextFunction): void {
+  const secret = req.headers['x-internal-secret'];
+  if (!secret || secret !== INTERNAL_API_SECRET) {
+    res.status(401).json({ success: false, error: 'Unauthorized — internal secret required' });
+    return;
+  }
+  next();
+}
 
 // ============================================================
 // Conversation Memory (in-process, per sender)
@@ -69,7 +85,7 @@ wa.initialize(async (from: string, body: string): Promise<string> => {
  * Beautiful auto-refreshing QR page for scanning.
  * Auto-redirects when authenticated.
  */
-app.get('/qr', (req: Request, res: Response) => {
+app.get('/qr', requireInternalSecret, (req: Request, res: Response) => {
   const status = wa.status;
   const qr = wa.qrDataUrl;
 
@@ -133,7 +149,7 @@ app.get('/qr', (req: Request, res: Response) => {
  * GET /status
  * JSON status endpoint.
  */
-app.get('/status', (req: Request, res: Response) => {
+app.get('/status', requireInternalSecret, (req: Request, res: Response) => {
   res.json({
     success: true,
     data: {
@@ -155,7 +171,7 @@ app.get('/health', (req: Request, res: Response) => {
  * POST /api/logout
  * Logout the current WhatsApp session.
  */
-app.post('/api/logout', async (req: Request, res: Response) => {
+app.post('/api/logout', requireInternalSecret, async (req: Request, res: Response) => {
   try {
     await wa.client.logout();
     res.json({ success: true, data: { message: 'Logged out successfully' } });

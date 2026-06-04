@@ -10,6 +10,7 @@ import { ProductGridSkeleton } from '@/components/shop/ProductSkeleton';
 import type { ProductCategory, ProductsApiResponse, ProductsQueryParams } from '@/types/product';
 import dbConnect from '@/lib/db/mongoose';
 import { Product } from '@/lib/db/models/Product';
+import { serializeProducts } from '@/lib/db/serialize';
 
 // ============================================================
 // Metadata
@@ -64,7 +65,7 @@ async function fetchProducts(params: ProductsQueryParams): Promise<ProductsApiRe
   ]);
 
   return {
-    data: products as any,
+    data: serializeProducts(products as any[]),
     pagination: {
       page: safePage,
       limit: safeLimit,

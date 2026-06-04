@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { verifyJWT } from '@/lib/auth/jwt';
+import { getTokenFromCookies } from '@/lib/auth/getToken';
 import dbConnect from '@/lib/db/mongoose';
 import User from '@/lib/db/models/User';
 
@@ -10,13 +11,7 @@ export const dynamic = 'force-dynamic';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const FIXED_PROMPT = `Using the uploaded portrait as a FACE REFERENCE, Create a hairstyle analysis graphic using this portrait. Show side-by-side hairstyles comparisons to highlight which hairstyles suit the subject best. Make it visual-first, with short labels only and add little teks, made by Chief.
-
-Selain memanggil tool untuk membuat gambar di atas, berikan juga analisis teks (maksimal 2-3 paragraf) dalam bahasa Indonesia secara langsung:
-1. Identifikasi bentuk wajah subjek (misal: Bulat, Oval, Kotak, dll) beserta alasannya.
-2. Rekomendasi gaya rambut spesifik yang paling cocok.
-3. Gaya rambut yang sebaiknya dihindari dan alasannya.
-Pastikan bahasa Anda profesional, modern, dan langsung ke intinya layaknya seorang barber papan atas.`;
+const FIXED_PROMPT = `Buat grafis analisis gaya rambut pakai foto ini. Tampilkan perbandingannya berdampingan untuk menunjukkan yang cocok buat subjek. Utamakan visual dengan label singkat. Desain elegan dan minimalis, gunakan latar belakang beige netral dengan gaya infografis bersih dan modern. Di kiri, tambah foto gaya studio ukuran besar pakai foto yang diunggah. Di kanan, buat panel dengan judul dan bagian Recommended. Di atas, tampilkan 4-5 gaya rambut dengan tanda centang. Di tengah, tambah bagian Okay dengan 4-5 gaya pakai ikon netral. Di bawah, tambah Less Flattering dengan 4-5 gaya pakai tanda X. Di footer, tambah tips styling. Pakai subjek yang konsisten, resolusi tinggi, rasio 4:5`;
 
 const MAX_REQUESTS_PER_WINDOW = 3;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
@@ -25,11 +20,8 @@ const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
 export async function POST(req: Request) {
   try {
     // ── Step 1: Verify JWT Auth ──────────────────────────────────────
-    const token = req.headers
-      .get('cookie')
-      ?.split('; ')
-      .find((c) => c.startsWith('token='))
-      ?.split('=')[1];
+    // [SEC-06] Use standardized cookie helper instead of manual string-split
+    const token = getTokenFromCookies();
 
     if (!token) {
       return NextResponse.json({ error: 'AUTH_REQUIRED' }, { status: 401 });
@@ -39,25 +31,27 @@ export async function POST(req: Request) {
     let role: string;
     try {
       const payload = await verifyJWT(token);
-      userId = payload.userId as string;
+      userId = (payload.userId ?? payload.sub) as string;
       role = payload.role as string;
     } catch {
       return NextResponse.json({ error: 'AUTH_REQUIRED' }, { status: 401 });
     }
 
-    // ── Step 2: Credit Check (customer only, admin bypasses) ─────────
+    // ── Step 2: [BIZ-01] Atomic Credit Check & Deduct (customer only) ────────
+    // Single findOneAndUpdate with condition prevents race condition:
+    // Two simultaneous requests cannot both pass — only one will find ai_credits > 0.
     if (role !== 'admin') {
       await dbConnect();
-      const user = await User.findById(userId).select('ai_credits');
 
-      if (!user || user.ai_credits <= 0) {
+      const userAfterDeduct = await User.findOneAndUpdate(
+        { _id: userId, ai_credits: { $gt: 0 } },  // Condition: must have credit
+        { $inc: { ai_credits: -1, ai_credits_used_total: 1 } },
+        { new: true }
+      );
+
+      if (!userAfterDeduct) {
         return NextResponse.json({ error: 'NO_CREDIT' }, { status: 402 });
       }
-
-      // Atomic deduct — prevent race condition on double-click
-      await User.findByIdAndUpdate(userId, {
-        $inc: { ai_credits: -1, ai_credits_used_total: 1 },
-      });
     }
 
     // ── Step 3: IP Rate Limiting (secondary protection) ──────────────

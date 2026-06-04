@@ -7,6 +7,7 @@ import type { Product } from '@/types/product';
 import ProductCard from '@/components/shop/ProductCard';
 import dbConnect from '@/lib/db/mongoose';
 import { Product as ProductModel } from '@/lib/db/models/Product';
+import { serializeProducts } from '@/lib/db/serialize';
 
 export const metadata: Metadata = {
   title: 'Chief Supplies — Perlengkapan Pria Premium',
@@ -59,7 +60,7 @@ async function getFeaturedProducts(): Promise<Product[]> {
       .sort({ createdAt: -1 })
       .limit(4)
       .lean();
-    return products as any;
+    return serializeProducts(products);
   } catch {
     return [];
   }

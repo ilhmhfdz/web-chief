@@ -70,6 +70,14 @@ async function fetchDashboardData(): Promise<{
         .lean(),
     ]);
 
+    // Serialize ObjectId → string so JSX can call .slice() and pass as key
+    const serializedOrders: RecentOrder[] = (recentOrders as any[]).map((o) => ({
+      _id: o._id.toString(),
+      status: o.status,
+      total_price: o.total_price,
+      createdAt: o.createdAt instanceof Date ? o.createdAt.toISOString() : String(o.createdAt),
+    }));
+
     return {
       stats: {
         totalProducts,
@@ -78,7 +86,7 @@ async function fetchDashboardData(): Promise<{
         totalKnowledgeDocs,
         totalRevenue: revenueAgg[0]?.total ?? 0,
       },
-      recentOrders: recentOrders as unknown as RecentOrder[],
+      recentOrders: serializedOrders,
     };
   } catch {
     return {

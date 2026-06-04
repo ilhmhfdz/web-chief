@@ -108,6 +108,12 @@ const orderSchema = new Schema<IOrder>(
   }
 );
 
+// [DB-01] Compound indexes for most frequent query patterns:
+// - user_id + createdAt: user's order history page (sorted descending)
+// - status + createdAt: admin order management panel
+orderSchema.index({ user_id: 1, createdAt: -1 });
+orderSchema.index({ status: 1, createdAt: -1 });
+
 // Use existing model if already compiled (for Next.js HMR)
 export const Order: Model<IOrder> = mongoose.models.Order || mongoose.model<IOrder>('Order', orderSchema);
 export default Order;

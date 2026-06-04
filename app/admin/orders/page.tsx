@@ -30,7 +30,18 @@ async function fetchOrders(): Promise<Order[]> {
       .sort({ createdAt: -1 })
       .limit(100)
       .lean();
-    return orders as any;
+
+    // Serialize ObjectId → string and Date → ISO string for Client Component safety
+    return (orders as any[]).map((o) => ({
+      _id: o._id.toString(),
+      status: o.status,
+      total_price: o.total_price,
+      createdAt: o.createdAt instanceof Date ? o.createdAt.toISOString() : String(o.createdAt),
+      items: (o.items ?? []).map((i: any) => ({
+        name: i.name,
+        quantity: i.quantity,
+      })),
+    }));
   } catch {
     return [];
   }

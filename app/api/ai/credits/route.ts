@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { verifyJWT } from '@/lib/auth/jwt';
+import { getTokenFromCookies } from '@/lib/auth/getToken';
 import dbConnect from '@/lib/db/mongoose';
 import User from '@/lib/db/models/User';
 
@@ -9,11 +10,8 @@ import User from '@/lib/db/models/User';
  * Admin users get credits = -1 (unlimited).
  */
 export async function GET(req: Request) {
-  const token = req.headers
-    .get('cookie')
-    ?.split('; ')
-    .find((c) => c.startsWith('token='))
-    ?.split('=')[1];
+  // [SEC-06] Use standardized cookie helper
+  const token = getTokenFromCookies();
 
   if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

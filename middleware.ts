@@ -5,20 +5,15 @@ import { verifyJWT } from '@/lib/auth/jwt';
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
-  // Check if current route is protected
-  const isAdminRoute   = pathname.startsWith('/admin');
+  // Route classification
+  const isAdminRoute    = pathname.startsWith('/admin');
   const isApiAdminRoute = pathname.startsWith('/api/admin');
-  // Shop routes that require authentication
   const isShopAuthRoute = pathname.startsWith('/cart') || pathname.startsWith('/checkout');
-
-  // If not a protected route, proceed normally
-  if (!isAdminRoute && !isApiAdminRoute && !isShopAuthRoute) {
-    return NextResponse.next();
-  }
+  // These routes require any authenticated user (ownership enforced at handler level)
+  const isApiAuthRoute  = pathname.startsWith('/api/orders') || pathname === '/api/products';
 
   // 1. Extract token from Authorization header OR httpOnly cookie
   let token: string | undefined;
-
   const authHeader = request.headers.get('authorization');
   if (authHeader && authHeader.startsWith('Bearer ')) {
     token = authHeader.substring(7);
@@ -28,7 +23,8 @@ export async function middleware(request: NextRequest) {
 
   // 2. Handle missing token
   if (!token) {
-    return handleUnauthorized(request, isApiAdminRoute);
+    const isApiRoute = isApiAdminRoute || isApiAuthRoute;
+    return handleUnauthorized(request, isApiRoute);
   }
 
   // 3. Verify token
@@ -43,7 +39,9 @@ export async function middleware(request: NextRequest) {
     // 4. Attach payload to request headers for downstream API consumption
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set('x-user-payload', JSON.stringify(payload));
-    if (payload.sub) requestHeaders.set('x-user-id', payload.sub);
+    // Support both payload.userId (issued by signJWT) and payload.sub (OIDC standard)
+    const userId = (payload.userId ?? payload.sub) as string | undefined;
+    if (userId) requestHeaders.set('x-user-id', userId);
     if (payload.role) requestHeaders.set('x-user-role', payload.role as string);
 
     return NextResponse.next({
@@ -53,7 +51,8 @@ export async function middleware(request: NextRequest) {
     });
   } catch (error) {
     // Token is invalid or expired
-    return handleUnauthorized(request, isApiAdminRoute);
+    const isApiRoute = isApiAdminRoute || isApiAuthRoute;
+    return handleUnauthorized(request, isApiRoute);
   }
 }
 
@@ -79,8 +78,17 @@ function handleUnauthorized(request: NextRequest, isApi: boolean) {
 // Ensure middleware only runs on paths that need it
 export const config = {
   matcher: [
+    // Admin pages & API
     '/admin/:path*',
     '/api/admin/:path*',
+
+    // Order APIs — need auth for PATCH & GET (ownership check)
+    '/api/orders/:path*',
+
+    // Product write API — POST requires admin
+    '/api/products',
+
+    // Shop pages requiring auth
     '/cart',
     '/cart/:path*',
     '/checkout',

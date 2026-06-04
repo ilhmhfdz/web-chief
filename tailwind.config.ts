@@ -43,6 +43,7 @@ const config: Config = {
         sans:    ['var(--font-inter)', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
         display: ['var(--font-playfair)', '"Playfair Display"', 'Georgia', 'serif'],
         mono:    ['JetBrains Mono', 'Fira Code', 'monospace'],
+        ecommerce: ['var(--font-plus-jakarta)', 'sans-serif'],
       },
       borderRadius: {
         'xs': '4px',

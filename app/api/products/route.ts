@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 import dbConnect from '@/lib/db/mongoose';
 import { Product } from '@/lib/db/models/Product';
 import type { ProductCategory, ProductsQueryParams } from '@/types/product';
@@ -66,12 +67,48 @@ export async function GET(req: Request) {
   }
 }
 
-// ---- POST /api/products (admin only — seeded via API for convenience) ----
-export async function POST(req: Request) {
+// ---- POST /api/products (admin only) ----
+export async function POST(req: NextRequest) {
+  // [SEC-02] Enforce admin role via header injected by middleware.
+  // The x-user-role header is ONLY set by the middleware after verifying the JWT.
+  // Route is protected by the middleware matcher (see middleware.ts).
+  const userRole = req.headers.get('x-user-role');
+  if (!userRole || userRole !== 'admin') {
+    return NextResponse.json(
+      { error: 'Forbidden — Admin access required' },
+      { status: 403 }
+    );
+  }
+
   try {
     await dbConnect();
     const body = await req.json();
-    const product = await Product.create(body);
+
+    // Whitelist allowed fields — prevent mass assignment
+    const {
+      name,
+      description,
+      price,
+      stock,
+      category,
+      image_url,
+      images,
+      tags,
+      is_active,
+    } = body;
+
+    const product = await Product.create({
+      name,
+      description,
+      price,
+      stock,
+      category,
+      image_url,
+      images,
+      tags,
+      is_active,
+    });
+
     return NextResponse.json({ data: product }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json(
