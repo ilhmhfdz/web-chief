@@ -11,7 +11,13 @@ export const dynamic = 'force-dynamic';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const FIXED_PROMPT = `Buat grafis analisis gaya rambut pakai foto ini. Tampilkan perbandingannya berdampingan untuk menunjukkan yang cocok buat subjek. Utamakan visual dengan label singkat. Desain elegan dan minimalis, gunakan latar belakang beige netral dengan gaya infografis bersih dan modern. Di kiri, tambah foto gaya studio ukuran besar pakai foto yang diunggah. Di kanan, buat panel dengan judul dan bagian Recommended. Di atas, tampilkan 4-5 gaya rambut dengan tanda centang. Di tengah, tambah bagian Okay dengan 4-5 gaya pakai ikon netral. Di bawah, tambah Less Flattering dengan 4-5 gaya pakai tanda X. Di footer, tambah tips styling. Pakai subjek yang konsisten, resolusi tinggi, rasio 4:5`;
+const FIXED_PROMPT = `Using the uploaded portrait as a FACE REFERENCE, Create a hairstyle analysis graphic using this portrait. Show side-by-side hairstyles comparisons to highlight which hairstyles suit the subject best. Make it visual-first, with short labels only and add little teks, made by Chief.
+
+Selain memanggil tool untuk membuat gambar di atas, berikan juga analisis teks (maksimal 2-3 paragraf) dalam bahasa Indonesia secara langsung:
+1. Identifikasi bentuk wajah subjek (misal: Bulat, Oval, Kotak, dll) beserta alasannya.
+2. Rekomendasi gaya rambut spesifik yang paling cocok.
+3. Gaya rambut yang sebaiknya dihindari dan alasannya.
+Pastikan bahasa Anda profesional, modern, dan langsung ke intinya layaknya seorang barber papan atas.`;
 
 const MAX_REQUESTS_PER_WINDOW = 3;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;

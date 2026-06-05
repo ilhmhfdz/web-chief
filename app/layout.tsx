@@ -73,8 +73,8 @@ export default function RootLayout({
           {/* Navigation */}
           <Navbar />
 
-          {/* Main content — pushed below fixed navbar, extra bottom padding for mobile nav */}
-          <main className="relative z-10 flex-1 pt-16 lg:pt-20 pb-16 lg:pb-0">
+          {/* Main content — extra bottom padding for mobile nav */}
+          <main className="relative z-10 flex-1 pb-16 lg:pb-0">
             {children}
           </main>
 

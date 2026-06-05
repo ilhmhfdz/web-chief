@@ -6,7 +6,9 @@ import ProfileSidebar from './ProfileSidebar';
 import ProfileTabs from './ProfileTabs';
 import ProfileContent from './ProfileContent';
 import TransactionDropdown from './TransactionDropdown';
+import type { OrderSummary } from '@/app/(shop)/profile/page';
 import dynamic from 'next/dynamic';
+
 const UserChat = dynamic(() => import('@/components/profile/UserChat'), { ssr: false });
 
 interface ProfilePageClientProps {
@@ -16,9 +18,10 @@ interface ProfilePageClientProps {
     role: string;
     ai_credits: number;
   };
+  orders: OrderSummary[];
 }
 
-export default function ProfilePageClient({ user }: ProfilePageClientProps) {
+export default function ProfilePageClient({ user, orders }: ProfilePageClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   
@@ -27,14 +30,11 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
 
   useEffect(() => {
     const tab = searchParams?.get('tab');
-    if (tab) {
-      setActiveTab(tab);
-    }
+    if (tab) setActiveTab(tab);
   }, [searchParams]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    // Update URL without a hard reload
     router.push(`/profile?tab=${tab}`, { scroll: false });
   };
 
@@ -45,7 +45,7 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col gap-6">
-        <TransactionDropdown />
+        <TransactionDropdown orders={orders} />
 
         <div className="bg-white rounded-xl border border-surface-muted shadow-sm overflow-hidden flex flex-col min-h-[500px]">
           <ProfileTabs activeTab={activeTab} onChangeTab={handleTabChange} />
@@ -64,5 +64,3 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
     </div>
   );
 }
-
-

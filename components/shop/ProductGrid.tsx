@@ -1,6 +1,7 @@
 'use client';
 
 import { PackageX } from 'lucide-react';
+import { motion } from 'framer-motion';
 import ProductCard from './ProductCard';
 import type { Product, ProductsQueryParams } from '@/types/product';
 
@@ -20,12 +21,20 @@ interface ProductGridProps {
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-      <div className="w-16 h-16 rounded-full bg-surface-raised border border-surface-muted flex items-center justify-center">
-        <PackageX className="w-7 h-7 text-surface-sub" />
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="flex flex-col items-center justify-center py-28 gap-5 text-center"
+    >
+      <div className="w-18 h-18 rounded-2xl bg-surface-raised border border-surface-muted flex items-center justify-center shadow-inner">
+        <PackageX className="w-8 h-8 text-surface-border" />
       </div>
-      <p className="text-surface-sub font-semibold">{message}</p>
-    </div>
+      <div className="space-y-1">
+        <p className="text-sm font-bold text-surface-ink">Produk tidak ditemukan</p>
+        <p className="text-xs text-surface-sub max-w-xs">{message}</p>
+      </div>
+    </motion.div>
   );
 }
 
@@ -43,7 +52,7 @@ export default function ProductGrid({
   }
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
       {products.map((product, index) => (
         <ProductCard
           key={product._id}

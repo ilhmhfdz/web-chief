@@ -1,0 +1,16 @@
+{
+  // Disable built-in CSS/SCSS validators — Tailwind handles linting via its own extension
+  "css.validate": false,
+  "scss.validate": false,
+  "less.validate": false,
+
+  // Tell VS Code to treat .css files using the Tailwind CSS language service
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+
+  // Tailwind IntelliSense: always show completions
+  "editor.quickSuggestions": {
+    "strings": "on"
+  }
+}

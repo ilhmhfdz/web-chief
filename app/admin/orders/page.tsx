@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
-import { ShoppingCart } from 'lucide-react';
+import Link from 'next/link';
+import { ShoppingCart, ExternalLink } from 'lucide-react';
 import { formatPrice } from '@/lib/utils/format';
 import dbConnect from '@/lib/db/mongoose';
 import { Order } from '@/lib/db/models/Order';
 
 export const metadata: Metadata = { title: 'Pesanan' };
 
-interface Order {
+interface OrderRow {
   _id: string;
   status: string;
   total_price: number;
@@ -15,15 +16,15 @@ interface Order {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  pending: 'badge-default text-amber-700 bg-amber-50 border-amber-200',
-  paid: 'badge-default text-blue-700 bg-blue-50 border-blue-200',
+  pending:    'badge-default text-amber-700 bg-amber-50 border-amber-200',
+  paid:       'badge-default text-blue-700 bg-blue-50 border-blue-200',
   processing: 'badge-default text-purple-700 bg-purple-50 border-purple-200',
-  shipped: 'badge-default text-cyan-700 bg-cyan-50 border-cyan-200',
-  delivered: 'badge-default text-green-700 bg-green-50 border-green-200',
-  cancelled: 'badge-default text-red-700 bg-red-50 border-red-200',
+  shipped:    'badge-default text-cyan-700 bg-cyan-50 border-cyan-200',
+  delivered:  'badge-default text-green-700 bg-green-50 border-green-200',
+  cancelled:  'badge-default text-red-700 bg-red-50 border-red-200',
 };
 
-async function fetchOrders(): Promise<Order[]> {
+async function fetchOrders(): Promise<OrderRow[]> {
   try {
     await dbConnect();
     const orders = await Order.find()
@@ -31,7 +32,6 @@ async function fetchOrders(): Promise<Order[]> {
       .limit(100)
       .lean();
 
-    // Serialize ObjectId → string and Date → ISO string for Client Component safety
     return (orders as any[]).map((o) => ({
       _id: o._id.toString(),
       status: o.status,
@@ -73,11 +73,15 @@ export default async function AdminOrdersPage() {
                   <th className="text-center">Status</th>
                   <th className="text-right">Total</th>
                   <th className="text-right">Tanggal</th>
+                  <th className="text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 {orders.map((order) => (
-                  <tr key={order._id}>
+                  <tr
+                    key={order._id}
+                    className="cursor-pointer hover:bg-surface-raised transition-colors"
+                  >
                     <td className="font-mono text-surface-ink text-xs font-semibold uppercase">
                       #{order._id.slice(-8)}
                     </td>
@@ -96,6 +100,15 @@ export default async function AdminOrdersPage() {
                       {new Date(order.createdAt).toLocaleDateString('id-ID', {
                         day: 'numeric', month: 'short', year: 'numeric',
                       })}
+                    </td>
+                    <td className="text-center">
+                      <Link
+                        href={`/admin/orders/${order._id}`}
+                        className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-lg border border-surface-muted text-surface-sub hover:border-surface-ink hover:text-surface-ink transition-colors"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        Detail
+                      </Link>
                     </td>
                   </tr>
                 ))}

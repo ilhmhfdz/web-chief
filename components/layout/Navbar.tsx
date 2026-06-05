@@ -188,6 +188,8 @@ export default function Navbar() {
 
   useEffect(() => { setMobileOpen(false); setSearchOpen(false); }, [pathname]);
 
+  if (pathname.startsWith('/admin')) return null;
+
   return (
     <>
       <AdminBanner />

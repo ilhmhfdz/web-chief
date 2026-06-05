@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { buildQueryString } from '@/lib/utils/format';
 import type { ProductsQueryParams } from '@/types/product';
 
@@ -37,11 +38,11 @@ export default function Pagination({ currentPage, totalPages, currentParams }: P
   };
 
   return (
-    <div className="flex items-center justify-center gap-1.5 mt-10">
+    <div className="flex items-center justify-center gap-1.5 mt-12 pt-8 border-t border-surface-muted/40">
       <button
         onClick={() => goToPage(currentPage - 1)}
         disabled={currentPage === 1}
-        className="btn-ghost p-2 disabled:opacity-30 disabled:cursor-not-allowed text-surface-ink"
+        className="w-9 h-9 rounded-xl flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-surface-ink bg-white border border-surface-muted/70 hover:border-surface-border hover:shadow-sm transition-all duration-200"
         aria-label="Halaman sebelumnya"
       >
         <ChevronLeft className="w-4 h-4" />
@@ -49,29 +50,30 @@ export default function Pagination({ currentPage, totalPages, currentParams }: P
 
       {getPageNumbers().map((page, i) =>
         page === '...' ? (
-          <span key={`ellipsis-${i}`} className="px-2 text-surface-sub select-none font-semibold">
+          <span key={`ellipsis-${i}`} className="px-2 text-surface-sub select-none font-semibold text-sm">
             …
           </span>
         ) : (
-          <button
+          <motion.button
             key={page}
             onClick={() => goToPage(page)}
             aria-current={page === currentPage ? 'page' : undefined}
-            className={`w-9 h-9 rounded text-sm font-semibold transition-all duration-200 border ${
+            whileTap={{ scale: 0.92 }}
+            className={`w-9 h-9 rounded-xl text-sm font-bold transition-all duration-200 border ${
               page === currentPage
-                ? 'bg-surface-ink text-white border-surface-ink'
-                : 'text-surface-ink hover:text-white hover:bg-surface-ink border-surface-muted hover:border-surface-ink bg-white'
+                ? 'bg-surface-ink text-white border-surface-ink shadow-md shadow-surface-ink/20'
+                : 'text-surface-sub bg-white border-surface-muted/70 hover:text-surface-ink hover:border-surface-border hover:shadow-sm'
             }`}
           >
             {page}
-          </button>
+          </motion.button>
         )
       )}
 
       <button
         onClick={() => goToPage(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="btn-ghost p-2 disabled:opacity-30 disabled:cursor-not-allowed text-surface-ink"
+        className="w-9 h-9 rounded-xl flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed text-surface-ink bg-white border border-surface-muted/70 hover:border-surface-border hover:shadow-sm transition-all duration-200"
         aria-label="Halaman berikutnya"
       >
         <ChevronRight className="w-4 h-4" />

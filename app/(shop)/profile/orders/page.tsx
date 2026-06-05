@@ -1,50 +1,23 @@
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { verifyJWT } from '@/lib/auth/jwt';
 import connectDB from '@/lib/db/mongoose';
-import User from '@/lib/db/models/User';
 import { Order } from '@/lib/db/models/Order';
-import ProfilePageClient from '@/components/profile/ProfilePageClient';
+import type { OrderSummary } from '@/app/(shop)/profile/page';
+import ProfileOrdersClient from './ProfileOrdersClient';
 
 export const metadata: Metadata = {
-  title: 'Profil Saya - Chief Supplies',
-  description: 'Lihat pesanan dan atur profil akun Anda',
+  title: 'Pesanan Saya - Chief Supplies',
+  description: 'Daftar semua pesanan Anda di Chief Supplies',
 };
 
-export interface OrderSummary {
-  _id: string;
-  status: string;
-  total_price: number;
-  subtotal: number;
-  shipping_cost: number;
-  payment_gateway: string | null;
-  createdAt: string;
-  items: {
-    product_id: string;
-    name: string;
-    price: number;
-    quantity: number;
-    image_url: string;
-  }[];
-  shipping_address: {
-    recipient_name: string;
-    phone: string;
-    address: string;
-    city: string;
-    province: string;
-    postal_code: string;
-  };
-}
-
-export default async function ProfilePage() {
-  // 1. Get the session token
+export default async function ProfileOrdersPage() {
   const cookieStore = cookies();
   const token = cookieStore.get('token')?.value;
-
   if (!token) redirect('/login');
 
-  // 2. Verify token and get userId
   let payload: any;
   try {
     payload = await verifyJWT(token);
@@ -54,25 +27,11 @@ export default async function ProfilePage() {
 
   const userId = (payload.userId ?? payload.sub) as string;
 
-  // 3. Fetch user data and orders in parallel
   await connectDB();
-  const [userDoc, rawOrders] = await Promise.all([
-    User.findById(userId).select('name email role ai_credits').lean(),
-    Order.find({ user_id: userId })
-      .sort({ createdAt: -1 })
-      .limit(50)
-      .lean(),
-  ]);
-
-  if (!userDoc) redirect('/login');
-
-  // Serialize plain objects for Client Component
-  const user = {
-    name: (userDoc as any).name as string,
-    email: (userDoc as any).email as string,
-    role: (userDoc as any).role as string,
-    ai_credits: ((userDoc as any).ai_credits as number) || 0,
-  };
+  const rawOrders = await Order.find({ user_id: userId })
+    .sort({ createdAt: -1 })
+    .limit(100)
+    .lean();
 
   const orders: OrderSummary[] = (rawOrders as any[]).map((o) => ({
     _id: o._id.toString(),
@@ -99,5 +58,9 @@ export default async function ProfilePage() {
     },
   }));
 
-  return <ProfilePageClient user={user} orders={orders} />;
+  return (
+    <Suspense fallback={<div className="text-center py-20 text-surface-sub">Memuat pesanan...</div>}>
+      <ProfileOrdersClient orders={orders} />
+    </Suspense>
+  );
 }

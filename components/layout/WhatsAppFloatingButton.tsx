@@ -1,11 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X } from 'lucide-react';
 
 export default function WhatsAppFloatingButton() {
+  const pathname = usePathname();
   const [showTooltip, setShowTooltip] = useState(false);
+
+  if (pathname.startsWith('/admin')) return null;
 
   const WA_LINK = 'https://wa.me/6285121571837?text=Halo%20Chief%20Supplies!';
 
