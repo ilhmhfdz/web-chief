@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { MessageSquare, X, Send, Headphones } from 'lucide-react';
 import { apiFetch } from '@/lib/utils/apiFetch';
 
@@ -22,6 +23,7 @@ interface ProductChatButtonProps {
 }
 
 export default function ProductChatButton({ productName, iconOnly = false }: ProductChatButtonProps) {
+  const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -30,6 +32,10 @@ export default function ProductChatButton({ productName, iconOnly = false }: Pro
   const chatRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const prevCountRef = useRef(0);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Load / poll conversation
   useEffect(() => {
@@ -51,7 +57,7 @@ export default function ProductChatButton({ productName, iconOnly = false }: Pro
     fetchMessages();
     interval = setInterval(fetchMessages, 3000);
     return () => clearInterval(interval);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   // Auto-scroll only on new messages
@@ -109,7 +115,7 @@ export default function ProductChatButton({ productName, iconOnly = false }: Pro
       {iconOnly ? (
         <button
           onClick={handleOpen}
-          className="w-11 h-11 flex items-center justify-center rounded-xl border-2 border-surface-ink/30 text-surface-ink bg-white/40 backdrop-blur-md hover:bg-surface-ink hover:text-white hover:border-surface-ink transition-all duration-200 active:scale-[0.98] shrink-0"
+          className="w-11 h-11 flex items-center justify-center rounded-xl bg-surface-raised border border-surface-muted/60 text-surface-sub hover:text-surface-ink hover:bg-white hover:border-surface-border hover:shadow-sm transition-all duration-300 active:scale-95 shrink-0"
           aria-label="Chat Sekarang"
         >
           <MessageSquare className="w-5 h-5" />
@@ -117,82 +123,81 @@ export default function ProductChatButton({ productName, iconOnly = false }: Pro
       ) : (
         <button
           onClick={handleOpen}
-          className="w-full flex items-center justify-center gap-2 py-2.5 px-5 rounded-xl border-2 border-surface-ink/30 text-surface-ink bg-white/40 backdrop-blur-md hover:bg-surface-ink hover:text-white hover:border-surface-ink font-bold text-sm uppercase tracking-wide transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-surface-ink/50 whitespace-nowrap"
+          className="w-full flex items-center justify-center gap-2 py-3 px-5 rounded-xl bg-surface-raised border border-surface-muted/60 text-surface-ink hover:bg-white hover:border-surface-border hover:shadow-sm font-bold text-sm transition-all duration-300 active:scale-95 focus:outline-none focus:ring-2 focus:ring-surface-ink/20 whitespace-nowrap group"
         >
-          <MessageSquare className="w-4 h-4" />
+          <MessageSquare className="w-4.5 h-4.5 text-surface-sub group-hover:text-surface-ink transition-colors" />
           Chat Sekarang
         </button>
       )}
 
       {/* ── Popup ── */}
-      {isOpen && (
+      {isOpen && mounted && createPortal(
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px]"
+            className="fixed inset-0 z-[100] bg-black/20 backdrop-blur-[2px] transition-opacity"
             onClick={() => setIsOpen(false)}
           />
 
-          {/* Panel — mobile: sits above bottom nav; desktop: bottom-left corner */}
+          {/* Panel — positioned at bottom right to be closer to the button */}
           <div
-            className="fixed z-50 bottom-[148px] left-3 right-3 sm:bottom-6 sm:left-4 sm:right-auto sm:w-[23rem] flex flex-col bg-white rounded-2xl shadow-2xl border border-surface-muted overflow-hidden"
-            style={{ maxHeight: 'min(34rem, calc(100dvh - 80px))' }}
+            className="fixed z-[101] bottom-0 left-0 right-0 sm:bottom-6 sm:right-6 sm:left-auto sm:w-[24rem] flex flex-col bg-white sm:rounded-2xl shadow-2xl border border-surface-muted overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-300"
+            style={{ height: 'min(36rem, 100dvh)' }}
           >
             {/* Header */}
-            <div className="bg-brand-500 px-4 py-3 flex items-center justify-between shrink-0">
+            <div className="bg-surface-ink px-4 py-3.5 flex items-center justify-between shrink-0 shadow-sm relative z-10">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/10">
                   <Headphones className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-white font-semibold text-sm leading-none">Chief Support</p>
+                  <p className="text-white font-bold text-sm leading-tight">Chief Support</p>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-300 animate-pulse inline-block" />
-                    <p className="text-white/75 text-[10px]">Tanya seputar produk ini</p>
+                    <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse border border-green-200/30" />
+                    <p className="text-white/80 text-[11px] font-medium">Tanya seputar produk ini</p>
                   </div>
                 </div>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1.5 rounded-full hover:bg-white/20 transition-colors text-white"
+                className="p-2 rounded-full hover:bg-white/10 transition-colors text-white/80 hover:text-white"
                 aria-label="Tutup"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Product context chip */}
-            <div className="px-4 py-2 bg-brand-50 border-b border-brand-100 flex items-center gap-2 shrink-0">
-              <span className="text-[10px] text-brand-600 font-semibold uppercase tracking-wider">Produk:</span>
-              <span className="text-xs text-brand-800 font-medium truncate">{productName}</span>
+            <div className="px-4 py-2.5 bg-surface-raised border-b border-surface-muted flex items-center gap-2 shrink-0 shadow-sm z-0">
+              <span className="text-[10px] text-surface-sub font-bold uppercase tracking-wider bg-white px-2 py-0.5 rounded shadow-sm border border-surface-muted/50">Produk</span>
+              <span className="text-xs text-surface-ink font-semibold truncate flex-1">{productName}</span>
             </div>
 
             {/* Messages */}
             <div
               ref={chatRef}
-              className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 bg-[#f7f6f4]"
+              className="flex-1 overflow-y-auto p-4 flex flex-col gap-3.5 bg-[#f7f6f4]"
               style={{ minHeight: 0 }}
             >
               {messages.length === 0 ? (
-                <div className="m-auto text-center px-4 py-4">
-                  <div className="w-10 h-10 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <MessageSquare className="w-5 h-5 text-brand-500" />
+                <div className="m-auto text-center px-4 py-6 bg-white rounded-2xl shadow-sm border border-surface-muted/50 max-w-[90%]">
+                  <div className="w-12 h-12 bg-surface-raised rounded-full flex items-center justify-center mx-auto mb-3 border border-surface-muted">
+                    <MessageSquare className="w-5 h-5 text-surface-ink" />
                   </div>
-                  <p className="text-sm font-semibold text-surface-ink mb-1">Ada yang ingin ditanyakan?</p>
-                  <p className="text-xs text-surface-sub">Kirim pesan dan admin kami akan segera membalas.</p>
+                  <p className="text-sm font-bold text-surface-ink mb-1.5">Ada pertanyaan?</p>
+                  <p className="text-[12px] text-surface-sub leading-relaxed">Kirim pesan di bawah dan admin kami akan segera merespon pertanyaan Anda mengenai produk ini.</p>
                 </div>
               ) : (
                 messages.map((msg, i) => (
                   <div
                     key={msg._id || i}
-                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm shadow-sm ${
-                      msg.senderRole === 'user'
-                        ? 'bg-brand-500 text-white self-end rounded-br-sm'
+                    className={`max-w-[85%] rounded-2xl px-4 py-3 text-[13px] shadow-sm ${msg.senderRole === 'user'
+                        ? 'bg-surface-ink text-white self-end rounded-br-sm'
                         : 'bg-white text-surface-ink border border-surface-muted self-start rounded-bl-sm'
-                    }`}
+                      }`}
                   >
                     <p className="leading-relaxed">{msg.message}</p>
-                    <time className={`text-[10px] mt-1 block text-right ${msg.senderRole === 'user' ? 'text-brand-200' : 'text-surface-sub'}`}>
+                    <time className={`text-[10px] mt-1.5 block text-right font-medium ${msg.senderRole === 'user' ? 'text-white/70' : 'text-surface-sub/80'}`}>
                       {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </time>
                   </div>
@@ -203,27 +208,28 @@ export default function ProductChatButton({ productName, iconOnly = false }: Pro
             {/* Input */}
             <form
               onSubmit={handleSend}
-              className="flex gap-2 p-3 bg-white border-t border-surface-muted shrink-0"
+              className="flex gap-2.5 p-3.5 bg-white border-t border-surface-muted shrink-0 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]"
             >
               <input
                 ref={inputRef}
                 type="text"
                 value={newMessage}
                 onChange={e => setNewMessage(e.target.value)}
-                placeholder="Tulis pertanyaan Anda…"
-                className="flex-1 bg-surface border border-surface-muted rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-300 transition"
+                placeholder="Ketik pesan Anda di sini..."
+                className="flex-1 bg-surface-raised border border-surface-muted hover:border-surface-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-surface-ink focus:ring-1 focus:ring-surface-ink focus:bg-white transition-all shadow-inner"
               />
               <button
                 type="submit"
                 disabled={!newMessage.trim() || sending}
-                className="w-10 h-10 flex items-center justify-center bg-brand-500 hover:bg-brand-600 disabled:opacity-40 text-white rounded-xl transition-colors shrink-0"
+                className="w-11 h-11 flex items-center justify-center bg-surface-ink hover:bg-black disabled:opacity-40 text-white rounded-xl transition-all shadow-md hover:shadow-lg shrink-0 active:scale-95"
                 aria-label="Kirim"
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-4.5 h-4.5 ml-0.5" />
               </button>
             </form>
           </div>
-        </>
+        </>,
+        document.body
       )}
     </>
   );

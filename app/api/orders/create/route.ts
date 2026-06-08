@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db/mongoose';
 import { Order } from '@/lib/db/models/Order';
 import { Product } from '@/lib/db/models/Product';
+import User from '@/lib/db/models/User';
 import { verifyJWT } from '@/lib/auth/jwt';
 import { getTokenFromRequest } from '@/lib/auth/getToken';
 
@@ -17,7 +18,7 @@ export async function POST(request: NextRequest) {
 
     // ── Step 2: Parse body ───────────────────────────────────────────
     const body = await request.json();
-    const { items, shipping_address, payment_method, shipping_cost = 15000 } = body;
+    const { items, shipping_address, save_address, payment_method, shipping_cost = 15000 } = body;
 
     if (!items?.length) {
       return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
@@ -111,6 +112,25 @@ export async function POST(request: NextRequest) {
       payment_gateway: payment_method === 'cod' ? null : 'midtrans',
       shipping_address,
     });
+
+    if (save_address) {
+      const user = await User.findById(userId);
+      if (user) {
+        const willBeDefault = user.addresses.length === 0;
+        user.addresses.push({
+          recipient_name: shipping_address.recipient_name,
+          phone: shipping_address.phone,
+          address: shipping_address.address,
+          city: shipping_address.city,
+          province: shipping_address.province,
+          district: shipping_address.district,
+          district_id: shipping_address.district_id,
+          postal_code: shipping_address.postal_code,
+          is_default: willBeDefault
+        });
+        await user.save();
+      }
+    }
 
     return NextResponse.json({ success: true, orderId: order._id.toString() }, { status: 201 });
   } catch (err: any) {

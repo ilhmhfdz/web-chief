@@ -20,6 +20,8 @@ interface ShippingAddress {
   address: string;
   city: string;
   province: string;
+  district: string;
+  district_id: string;
   postal_code: string;
 }
 
@@ -96,22 +98,8 @@ const PAYMENT_METHODS: PaymentMethod[] = [
   },
 ];
 
-const PROVINCES = [
-  'Aceh','Bali','Banten','Bengkulu','DI Yogyakarta','DKI Jakarta',
-  'Gorontalo','Jambi','Jawa Barat','Jawa Tengah','Jawa Timur',
-  'Kalimantan Barat','Kalimantan Selatan','Kalimantan Tengah','Kalimantan Timur','Kalimantan Utara',
-  'Kepulauan Bangka Belitung','Kepulauan Riau',
-  'Lampung','Maluku','Maluku Utara','Nusa Tenggara Barat','Nusa Tenggara Timur',
-  'Papua','Papua Barat','Papua Barat Daya','Papua Pegunungan','Papua Selatan','Papua Tengah',
-  'Riau','Sulawesi Barat','Sulawesi Selatan','Sulawesi Tengah','Sulawesi Tenggara','Sulawesi Utara',
-  'Sumatera Barat','Sumatera Selatan','Sumatera Utara',
-];
 
-const SHIPPING_OPTIONS = [
-  { id: 'regular', label: 'Reguler (3-5 hari)', cost: 15000 },
-  { id: 'express', label: 'Express (1-2 hari)', cost: 30000 },
-  { id: 'same_day', label: 'Same Day', cost: 50000 },
-];
+
 
 // ── Step indicator ─────────────────────────────────────────────
 const STEPS = ['Pengiriman', 'Pembayaran', 'Konfirmasi'];
@@ -147,12 +135,11 @@ function StepBar({ current }: { current: number }) {
 // ── Section wrapper ────────────────────────────────────────────
 function Section({ icon: Icon, title, children }: { icon: any; title: string; children: React.ReactNode }) {
   return (
-    <div className="glass-card p-6 mb-4">
-      <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-surface-muted">
-        <div className="w-8 h-8 rounded-lg bg-surface-ink flex items-center justify-center">
-          <Icon className="w-4 h-4 text-white" />
-        </div>
-        <h2 className="font-semibold text-surface-ink">{title}</h2>
+    <div className="mb-10">
+      <div className="flex items-center gap-2 mb-6">
+        <h2 className="text-lg font-bold text-surface-ink flex items-center gap-2.5">
+          <Icon className="w-5 h-5 text-surface-sub" /> {title}
+        </h2>
       </div>
       {children}
     </div>
@@ -165,11 +152,11 @@ function Field({
 }: { label: string; required?: boolean; error?: string; children: React.ReactNode; className?: string }) {
   return (
     <div className={className}>
-      <label className="block text-xs font-semibold text-surface-sub uppercase tracking-wider mb-1.5">
+      <label className="block text-xs font-semibold text-surface-ink mb-1.5">
         {label}{required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       {children}
-      {error && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{error}</p>}
+      {error && <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{error}</p>}
     </div>
   );
 }
@@ -197,26 +184,26 @@ function PaymentCard({ method, selected, onSelect }: { method: PaymentMethod; se
     <button
       type="button"
       onClick={onSelect}
-      className={`w-full flex items-center gap-3 p-4 rounded-lg border text-left transition-all duration-150 ${
+      className={`w-full flex items-center gap-4 p-4 rounded-xl border text-left transition-all duration-150 ${
         selected
           ? 'border-surface-ink bg-surface-ink/5 ring-1 ring-surface-ink'
-          : 'border-surface-muted hover:border-surface-border hover:bg-surface-raised'
+          : 'border-surface-muted hover:border-surface-ink/30 hover:bg-surface-raised/30'
       }`}
     >
       {/* Logo badge */}
-      <div className={`w-12 h-9 rounded-md flex items-center justify-center text-white text-[10px] font-black shrink-0 ${PM_COLORS[method.id] ?? 'bg-gray-500'}`}>
+      <div className={`w-12 h-8 rounded flex items-center justify-center text-white text-[10px] font-black shrink-0 ${PM_COLORS[method.id] ?? 'bg-gray-500'}`}>
         {PM_LOGOS[method.id]}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold text-surface-ink">{method.name}</span>
           {method.badge && (
-            <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">{method.badge}</span>
+            <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">{method.badge}</span>
           )}
         </div>
         <p className="text-xs text-surface-sub mt-0.5 line-clamp-1">{method.description}</p>
       </div>
-      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+      <div className={`w-5 h-5 rounded-full border-[1.5px] flex items-center justify-center shrink-0 transition-colors ${
         selected ? 'border-surface-ink' : 'border-surface-muted'
       }`}>
         {selected && <div className="w-2.5 h-2.5 rounded-full bg-surface-ink" />}
@@ -237,11 +224,178 @@ export default function CheckoutPage() {
   const [error, setError] = useState('');
 
   // Shipping
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('new');
+  const [saveAddress, setSaveAddress] = useState(false);
+  
   const [address, setAddress] = useState<ShippingAddress>({
-    recipient_name: '', phone: '', address: '', city: '', province: '', postal_code: '',
+    recipient_name: '', phone: '', address: '', city: '', province: '', district: '', district_id: '', postal_code: '',
   });
-  const [shippingOption, setShippingOption] = useState(SHIPPING_OPTIONS[0]);
+  
+  const [shippingOptions, setShippingOptions] = useState<any[]>([]);
+  const [shippingOption, setShippingOption] = useState<any>(null);
+  const [loadingShipping, setLoadingShipping] = useState(false);
+  
   const [addrErrors, setAddrErrors] = useState<Partial<ShippingAddress>>({});
+
+  const [provinces, setProvinces] = useState<{id: string, name: string}[]>([]);
+  const [cities, setCities] = useState<{id: string, name: string}[]>([]);
+  const [districts, setDistricts] = useState<{id: string, name: string}[]>([]);
+  const [selectedProvId, setSelectedProvId] = useState('');
+  const [selectedCityId, setSelectedCityId] = useState('');
+
+  useEffect(() => {
+    fetch('/api/shipping/wilayah?type=province')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setProvinces(data);
+      })
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (selectedProvId) {
+      fetch(`/api/shipping/wilayah?type=kabupaten&id=${selectedProvId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) setCities(data);
+        })
+        .catch(console.error);
+    } else {
+      setCities([]);
+      setSelectedCityId('');
+    }
+  }, [selectedProvId]);
+
+  useEffect(() => {
+    if (selectedCityId) {
+      fetch(`/api/shipping/wilayah?type=kecamatan&id=${selectedCityId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) setDistricts(data);
+        })
+        .catch(console.error);
+    } else {
+      setDistricts([]);
+    }
+  }, [selectedCityId]);
+
+  useEffect(() => {
+    if (address.district_id) {
+      setLoadingShipping(true);
+      fetch('/api/shipping/cost', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ destination_district_id: address.district_id })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.results) {
+          const options: any[] = [];
+          const seen = new Set();
+          
+          data.results.forEach((courier: any) => {
+            const allowed = ['jne', 'jnt', 'sicepat'];
+            if (!allowed.includes(courier.code.toLowerCase())) return;
+
+            if (courier.costs) {
+              courier.costs.forEach((cost: any) => {
+                const s = cost.service.toUpperCase();
+                const t = (cost.type || '').toUpperCase();
+                
+                if (s.includes('TRUCK') || t.includes('TRUCK') || s.includes('JTR') || s.includes('CARGO') || s.includes('GOKIL') || s.includes('DOC') || t.includes('DOKUMEN')) {
+                  return;
+                }
+
+                let category = 'Standard';
+                if (s.includes('SAME') || s.includes('SPS') || t.includes('SAME') || s.includes('INSTANT')) {
+                  category = 'Same Day';
+                } else if (s.includes('NEXT') || s.includes('YES') || s.includes('BEST') || t.includes('NEXT') || s.includes('ONS')) {
+                  category = 'Next Day';
+                }
+
+                const id = `${courier.code}_${cost.service}`;
+                if (seen.has(id)) return;
+                seen.add(id);
+
+                options.push({
+                  id,
+                  label: `${courier.name} - ${cost.service}`,
+                  estimated: cost.estimated ? `${cost.estimated.replace(' hari', '')} hari` : '',
+                  cost: parseInt(cost.price, 10),
+                  category
+                });
+              });
+            }
+          });
+
+          const catWeight: any = { 'Same Day': 1, 'Next Day': 2, 'Standard': 3 };
+          options.sort((a, b) => {
+            if (catWeight[a.category] !== catWeight[b.category]) {
+              return catWeight[a.category] - catWeight[b.category];
+            }
+            return a.cost - b.cost;
+          });
+
+          setShippingOptions(options);
+          if (options.length > 0) {
+            setShippingOption(options[0]);
+          } else {
+            setShippingOption(null);
+          }
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoadingShipping(false));
+    } else {
+      setShippingOptions([]);
+      setShippingOption(null);
+    }
+  }, [address.district_id]);
+
+  useEffect(() => {
+    if (user) {
+      fetch('/api/user/addresses')
+        .then(res => res.json())
+        .then(data => {
+          if (data.addresses && data.addresses.length > 0) {
+            setSavedAddresses(data.addresses);
+            const defaultAddr = data.addresses.find((a: any) => a.is_default) || data.addresses[0];
+            setSelectedAddressId(defaultAddr._id);
+            setAddress(defaultAddr);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [user]);
+
+  const handleAddressSelect = (id: string) => {
+    setSelectedAddressId(id);
+    if (id === 'new') {
+      setAddress({ recipient_name: '', phone: '', address: '', city: '', province: '', district: '', district_id: '', postal_code: '' });
+      setSaveAddress(false);
+      setSelectedProvId('');
+      setSelectedCityId('');
+    } else {
+      const addr = savedAddresses.find(a => a._id === id);
+      if (addr) {
+        setAddress(addr);
+        const prov = provinces.find(p => p.name === addr.province);
+        if (prov) {
+          setSelectedProvId(prov.id);
+          fetch(`/api/shipping/wilayah?type=kabupaten&id=${prov.id}`)
+            .then(res => res.json())
+            .then(data => {
+              if (Array.isArray(data)) {
+                setCities(data);
+                const city = data.find((c: any) => c.name === addr.city);
+                if (city) setSelectedCityId(city.id);
+              }
+            });
+        }
+      }
+    }
+  };
 
   // Payment
   const [paymentId, setPaymentId] = useState('bca_va');
@@ -256,10 +410,15 @@ export default function CheckoutPage() {
     if (!address.province) errs.province = 'Pilih provinsi';
     if (!address.postal_code.trim() || !/^\d{5}$/.test(address.postal_code)) errs.postal_code = 'Kode pos 5 digit';
     setAddrErrors(errs);
+    if (!shippingOption) {
+      setError('Harap pilih alamat yang valid untuk memuat opsi pengiriman');
+      return false;
+    }
     return Object.keys(errs).length === 0;
-  }, [address]);
+  }, [address, shippingOption]);
 
   const handleNext = useCallback(() => {
+    setError('');
     if (step === 0 && !validateAddress()) return;
     setStep(s => s + 1);
   }, [step, validateAddress]);
@@ -273,7 +432,7 @@ export default function CheckoutPage() {
 
   // Derived values — safe to compute before early return
   const subtotal = totalPrice;
-  const shippingCost = shippingOption.cost;
+  const shippingCost = shippingOption?.cost || 0;
   const total = subtotal + shippingCost;
 
   if (authLoading || !user || items.length === 0) return null;
@@ -291,6 +450,7 @@ export default function CheckoutPage() {
           image_url: i.product.image_url,
         })),
         shipping_address: address,
+        save_address: selectedAddressId === 'new' && saveAddress,
         payment_method: paymentId,
         shipping_cost: shippingCost,
       };
@@ -339,72 +499,163 @@ export default function CheckoutPage() {
               {step === 0 && (
                 <motion.div key="step0" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }} transition={{ duration: 0.25 }}>
                   <Section icon={MapPin} title="Alamat Pengiriman">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Field label="Nama Penerima" required error={addrErrors.recipient_name}>
-                        <div className="relative">
-                          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-sub" />
-                          <input className="input-field pl-9" placeholder="John Doe" value={address.recipient_name}
-                            onChange={e => setAddress(a => ({ ...a, recipient_name: e.target.value }))} />
+                    {savedAddresses.length > 0 && (
+                      <div className="mb-6 space-y-3">
+                        {savedAddresses.map(addr => (
+                          <div 
+                            key={addr._id}
+                            onClick={() => handleAddressSelect(addr._id)}
+                            className={`p-3.5 rounded-lg border cursor-pointer transition-colors ${selectedAddressId === addr._id ? 'border-surface-ink bg-surface-ink/5 ring-1 ring-surface-ink' : 'border-surface-muted hover:border-surface-border'}`}
+                          >
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-semibold text-sm text-surface-ink">{addr.recipient_name}</span>
+                              {addr.is_default && <span className="text-[10px] font-bold bg-green-100 text-green-700 px-1.5 py-0.5 rounded">Utama</span>}
+                            </div>
+                            <p className="text-xs text-surface-sub mb-0.5">{addr.phone}</p>
+                            <p className="text-xs text-surface-ink line-clamp-2">{addr.address}, {addr.city}, {addr.province} {addr.postal_code}</p>
+                          </div>
+                        ))}
+                        <div
+                          onClick={() => handleAddressSelect('new')}
+                          className={`p-3.5 rounded-lg border cursor-pointer transition-colors ${selectedAddressId === 'new' ? 'border-surface-ink bg-surface-ink/5 ring-1 ring-surface-ink' : 'border-surface-muted hover:border-surface-border'}`}
+                        >
+                          <span className="font-semibold text-sm text-surface-ink">Tambah Alamat Baru</span>
                         </div>
-                      </Field>
-                      <Field label="Nomor Telepon" required error={addrErrors.phone}>
-                        <div className="relative">
-                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-sub" />
-                          <input className="input-field pl-9" placeholder="08xxxxxxxxxx" type="tel" value={address.phone}
-                            onChange={e => setAddress(a => ({ ...a, phone: e.target.value }))} />
+                      </div>
+                    )}
+                    
+                    {selectedAddressId === 'new' && (
+                      <>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {/* BUG-002 fix: col-span-2 applied to the Field wrapper, not inner div */}
+                          <Field label="Alamat Lengkap" required error={addrErrors.address} className="sm:col-span-2">
+                            <div className="relative">
+                              <Home className="absolute left-3 top-3 w-4 h-4 text-surface-sub" />
+                              <textarea className="input-field pl-9 resize-none" rows={2} placeholder="Jl. Raya No.1, RT 001/RW 002" value={address.address}
+                                onChange={e => setAddress(a => ({ ...a, address: e.target.value }))} />
+                            </div>
+                          </Field>
+                          <Field label="Provinsi" required error={addrErrors.province}>
+                            <div className="relative">
+                              <select className="input-field appearance-none pr-8" value={address.province}
+                                onChange={e => {
+                                  const name = e.target.value;
+                                  setAddress(a => ({ ...a, province: name, city: '', district: '', district_id: '' }));
+                                  const prov = provinces.find(p => p.name === name);
+                                  setSelectedProvId(prov ? prov.id : '');
+                                }}>
+                                <option value="">-- Pilih Provinsi --</option>
+                                {provinces.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
+                              </select>
+                              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-sub pointer-events-none" />
+                            </div>
+                          </Field>
+                          <Field label="Kota/Kabupaten" required error={addrErrors.city}>
+                            <div className="relative">
+                              <select className="input-field appearance-none pr-8" value={address.city}
+                                onChange={e => {
+                                  const name = e.target.value;
+                                  setAddress(a => ({ ...a, city: name, district: '', district_id: '' }));
+                                  const city = cities.find(c => c.name === name);
+                                  setSelectedCityId(city ? city.id : '');
+                                }} disabled={!selectedProvId}>
+                                <option value="">-- Pilih Kota/Kabupaten --</option>
+                                {cities.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                              </select>
+                              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-sub pointer-events-none" />
+                            </div>
+                          </Field>
+                          <Field label="Kecamatan" required error={addrErrors.district}>
+                            <div className="relative">
+                              <select className="input-field appearance-none pr-8" value={address.district}
+                                onChange={e => {
+                                  const name = e.target.value;
+                                  const district = districts.find(d => d.name === name);
+                                  setAddress(a => ({ ...a, district: name, district_id: district ? `district_${district.id}` : '' }));
+                                }} disabled={!selectedCityId}>
+                                <option value="">-- Pilih Kecamatan --</option>
+                                {districts.map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
+                              </select>
+                              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-sub pointer-events-none" />
+                            </div>
+                          </Field>
+                          <Field label="Kode Pos" required error={addrErrors.postal_code}>
+                            <input className="input-field" placeholder="12345" maxLength={5} value={address.postal_code}
+                              onChange={e => setAddress(a => ({ ...a, postal_code: e.target.value.replace(/\D/g, '') }))} />
+                          </Field>
+                          <div className="hidden sm:block"></div>
+                          <Field label="Nama Penerima" required error={addrErrors.recipient_name}>
+                            <div className="relative">
+                              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-sub" />
+                              <input className="input-field pl-9" placeholder="John Doe" value={address.recipient_name}
+                                onChange={e => setAddress(a => ({ ...a, recipient_name: e.target.value }))} />
+                            </div>
+                          </Field>
+                          <Field label="Nomor Telepon" required error={addrErrors.phone}>
+                            <div className="relative">
+                              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-sub" />
+                              <input className="input-field pl-9" placeholder="08xxxxxxxxxx" type="tel" value={address.phone}
+                                onChange={e => setAddress(a => ({ ...a, phone: e.target.value }))} />
+                            </div>
+                          </Field>
                         </div>
-                      </Field>
-                      {/* BUG-002 fix: col-span-2 applied to the Field wrapper, not inner div */}
-                      <Field label="Alamat Lengkap" required error={addrErrors.address} className="sm:col-span-2">
-                        <div className="relative">
-                          <Home className="absolute left-3 top-3 w-4 h-4 text-surface-sub" />
-                          <textarea className="input-field pl-9 resize-none" rows={2} placeholder="Jl. Raya No.1, RT 001/RW 002" value={address.address}
-                            onChange={e => setAddress(a => ({ ...a, address: e.target.value }))} />
+                        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-surface-muted">
+                          <input type="checkbox" id="save_addr" checked={saveAddress} onChange={e => setSaveAddress(e.target.checked)} className="w-4 h-4 rounded border-surface-muted text-surface-ink focus:ring-surface-ink" />
+                          <label htmlFor="save_addr" className="text-sm text-surface-ink cursor-pointer">Simpan alamat ini untuk pembelian selanjutnya</label>
                         </div>
-                      </Field>
-                      <Field label="Kota/Kabupaten" required error={addrErrors.city}>
-                        <input className="input-field" placeholder="Jakarta Selatan" value={address.city}
-                          onChange={e => setAddress(a => ({ ...a, city: e.target.value }))} />
-                      </Field>
-                      <Field label="Provinsi" required error={addrErrors.province}>
-                        <div className="relative">
-                          <select className="input-field appearance-none pr-8" value={address.province}
-                            onChange={e => setAddress(a => ({ ...a, province: e.target.value }))}>
-                            <option value="">-- Pilih Provinsi --</option>
-                            {PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
-                          </select>
-                          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-sub pointer-events-none" />
-                        </div>
-                      </Field>
-                      <Field label="Kode Pos" required error={addrErrors.postal_code}>
-                        <input className="input-field" placeholder="12345" maxLength={5} value={address.postal_code}
-                          onChange={e => setAddress(a => ({ ...a, postal_code: e.target.value.replace(/\D/g, '') }))} />
-                      </Field>
-                    </div>
+                      </>
+                    )}
                   </Section>
 
                   <Section icon={Truck} title="Opsi Pengiriman">
                     <div className="space-y-2.5">
-                      {SHIPPING_OPTIONS.map(opt => (
-                        <button key={opt.id} type="button" onClick={() => setShippingOption(opt)}
-                          className={`w-full flex items-center justify-between p-3.5 rounded-lg border transition-all ${
-                            shippingOption.id === opt.id
-                              ? 'border-surface-ink bg-surface-ink/5 ring-1 ring-surface-ink'
-                              : 'border-surface-muted hover:border-surface-border'
-                          }`}>
-                          <div className="flex items-center gap-3">
-                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${shippingOption.id === opt.id ? 'border-surface-ink' : 'border-surface-muted'}`}>
-                              {shippingOption.id === opt.id && <div className="w-2 h-2 rounded-full bg-surface-ink" />}
-                            </div>
-                            <div className="text-left">
-                              <p className="text-sm font-semibold text-surface-ink">{opt.label}</p>
-                              <p className="text-xs text-surface-sub">Estimasi tiba sesuai jadwal kurir</p>
-                            </div>
-                          </div>
-                          <span className="text-sm font-bold text-surface-ink">{formatPrice(opt.cost)}</span>
-                        </button>
-                      ))}
+                      {loadingShipping ? (
+                        <div className="py-8 flex flex-col items-center justify-center text-surface-sub">
+                          <Loader2 className="w-6 h-6 animate-spin mb-2 text-surface-ink" />
+                          <p className="text-sm">Menghitung ongkos kirim...</p>
+                        </div>
+                      ) : shippingOptions.length === 0 ? (
+                        <div className="py-6 text-center border border-dashed border-surface-muted rounded-lg bg-surface-raised/50">
+                          <p className="text-sm text-surface-sub">Pilih kecamatan untuk melihat opsi pengiriman</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {['Same Day', 'Next Day', 'Standard'].map(category => {
+                            const catOptions = shippingOptions.filter(opt => opt.category === category);
+                            if (catOptions.length === 0) return null;
+                            return (
+                              <div key={category}>
+                                <p className="text-[11px] font-bold text-surface-sub uppercase tracking-widest mb-2">{category}</p>
+                                <div className="space-y-2.5">
+                                  {catOptions.map(opt => (
+                                    <button key={opt.id} type="button" onClick={() => setShippingOption(opt)}
+                                      className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all ${
+                                        shippingOption?.id === opt.id
+                                          ? 'border-surface-ink bg-surface-ink/5 ring-1 ring-surface-ink'
+                                          : 'border-surface-muted hover:border-surface-ink/30 hover:bg-surface-raised/30'
+                                      }`}>
+                                      <div className="flex items-center gap-4">
+                                        <div className={`w-5 h-5 rounded-full border-[1.5px] flex items-center justify-center transition-colors ${shippingOption?.id === opt.id ? 'border-surface-ink' : 'border-surface-muted'}`}>
+                                          {shippingOption?.id === opt.id && <div className="w-2.5 h-2.5 rounded-full bg-surface-ink" />}
+                                        </div>
+                                        <div className="text-left">
+                                          <p className="text-sm font-semibold text-surface-ink">{opt.label}</p>
+                                          {opt.estimated && <p className="text-xs text-surface-sub mt-0.5">Tiba dalam {opt.estimated}</p>}
+                                        </div>
+                                      </div>
+                                      <span className="text-sm font-bold text-surface-ink">{formatPrice(opt.cost)}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
+                    {error && !shippingOption && (
+                      <p className="text-red-500 text-xs mt-3">{error}</p>
+                    )}
                   </Section>
                 </motion.div>
               )}
@@ -448,7 +699,7 @@ export default function CheckoutPage() {
                       <div className="flex gap-2"><span className="text-surface-sub w-28 shrink-0">Penerima</span><span className="font-semibold">{address.recipient_name}</span></div>
                       <div className="flex gap-2"><span className="text-surface-sub w-28 shrink-0">Telepon</span><span>{address.phone}</span></div>
                       <div className="flex gap-2"><span className="text-surface-sub w-28 shrink-0">Alamat</span><span>{address.address}, {address.city}, {address.province} {address.postal_code}</span></div>
-                      <div className="flex gap-2"><span className="text-surface-sub w-28 shrink-0">Pengiriman</span><span>{shippingOption.label}</span></div>
+                      <div className="flex gap-2"><span className="text-surface-sub w-28 shrink-0">Pengiriman</span><span>{shippingOption?.label}</span></div>
                     </div>
                     <button onClick={() => setStep(0)} className="mt-4 text-xs text-surface-sub underline underline-offset-2 hover:text-surface-ink transition-colors">
                       Ubah alamat
@@ -501,43 +752,46 @@ export default function CheckoutPage() {
 
           {/* ── Right: Order summary ────────────────────────── */}
           <div className="lg:col-span-1">
-            <div className="glass-card p-5 sticky top-24">
-              <h3 className="font-semibold text-surface-ink mb-4 pb-3 border-b border-surface-muted">
+            <div className="bg-surface-raised/50 border border-surface-muted rounded-xl p-6 lg:p-7 sticky top-24">
+              <h3 className="text-lg font-bold text-surface-ink mb-5 pb-4 border-b border-surface-muted">
                 Ringkasan Pesanan
               </h3>
-              <div className="space-y-3 max-h-60 overflow-y-auto pr-1 scrollbar-hide">
+              <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2 scrollbar-hide mb-6">
                 {items.map(item => (
-                  <div key={item.product._id} className="flex gap-3">
-                    <div className="relative w-12 h-12 rounded-md overflow-hidden border border-surface-muted shrink-0">
-                      <Image src={item.product.image_url} alt={item.product.name} fill className="object-cover" sizes="48px" />
+                  <div key={item.product._id} className="flex gap-4">
+                    <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-surface-muted shrink-0 bg-white">
+                      <Image src={item.product.image_url} alt={item.product.name} fill className="object-cover" sizes="64px" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-surface-ink line-clamp-2 leading-snug">{item.product.name}</p>
-                      <p className="text-xs text-surface-sub mt-0.5">x{item.quantity}</p>
+                    <div className="flex-1 min-w-0 py-1">
+                      <p className="text-sm font-semibold text-surface-ink line-clamp-2 leading-snug">{item.product.name}</p>
+                      <p className="text-xs text-surface-sub mt-1">Qty: {item.quantity}</p>
                     </div>
-                    <p className="text-xs font-bold text-surface-ink shrink-0">{formatPrice(item.product.price * item.quantity)}</p>
+                    <p className="text-sm font-bold text-surface-ink shrink-0 py-1">{formatPrice(item.product.price * item.quantity)}</p>
                   </div>
                 ))}
               </div>
 
-              <div className="border-t border-surface-muted mt-4 pt-4 space-y-2.5">
-                <div className="flex justify-between text-sm">
-                  <span className="text-surface-sub">Subtotal</span>
-                  <span className="font-medium">{formatPrice(subtotal)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-surface-sub">Ongkos Kirim</span>
-                  <span className="font-medium">{formatPrice(shippingCost)}</span>
-                </div>
-                <div className="flex justify-between text-base font-bold border-t border-surface-muted pt-2.5">
-                  <span>Total</span>
-                  <span>{formatPrice(total)}</span>
-                </div>
+              <div className="border-t border-surface-muted pt-5 space-y-3">
+                <dl className="flex items-center justify-between text-sm">
+                  <dt className="text-surface-sub">Subtotal</dt>
+                  <dd className="font-medium">{formatPrice(subtotal)}</dd>
+                </dl>
+                <dl className="flex items-center justify-between text-sm">
+                  <dt className="text-surface-sub">Ongkos Kirim</dt>
+                  <dd className="font-medium">{formatPrice(shippingCost)}</dd>
+                </dl>
+                <dl className="flex items-center justify-between text-base font-bold border-t border-surface-muted pt-4 mt-1">
+                  <dt>Total Pembayaran</dt>
+                  <dd>{formatPrice(total)}</dd>
+                </dl>
               </div>
 
-              <div className="mt-4 p-3 rounded-lg bg-surface-raised border border-surface-muted flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-green-600 shrink-0" />
-                <p className="text-xs text-surface-sub">Transaksi aman & terenkripsi</p>
+              <div className="mt-6 p-4 rounded-xl bg-green-50/50 border border-green-100 flex items-start gap-3">
+                <ShieldCheck className="w-5 h-5 text-green-600 shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-green-800">Pembayaran Aman</p>
+                  <p className="text-xs text-green-700/80 mt-0.5">Transaksi dienkripsi 256-bit AES</p>
+                </div>
               </div>
             </div>
           </div>

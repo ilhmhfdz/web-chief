@@ -44,6 +44,8 @@ const config: Config = {
         display: ['var(--font-playfair)', '"Playfair Display"', 'Georgia', 'serif'],
         mono:    ['JetBrains Mono', 'Fira Code', 'monospace'],
         ecommerce: ['var(--font-plus-jakarta)', 'sans-serif'],
+        rubik:   ['var(--font-rubik)', 'sans-serif'],
+        nunito:  ['var(--font-nunito-sans)', 'sans-serif'],
       },
       borderRadius: {
         'xs': '4px',

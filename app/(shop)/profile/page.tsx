@@ -57,7 +57,7 @@ export default async function ProfilePage() {
   // 3. Fetch user data and orders in parallel
   await connectDB();
   const [userDoc, rawOrders] = await Promise.all([
-    User.findById(userId).select('name email role ai_credits').lean(),
+    User.findById(userId).select('name email role ai_credits addresses').lean(),
     Order.find({ user_id: userId })
       .sort({ createdAt: -1 })
       .limit(50)
@@ -72,6 +72,16 @@ export default async function ProfilePage() {
     email: (userDoc as any).email as string,
     role: (userDoc as any).role as string,
     ai_credits: ((userDoc as any).ai_credits as number) || 0,
+    addresses: ((userDoc as any).addresses || []).map((a: any) => ({
+      _id: a._id?.toString() || '',
+      recipient_name: a.recipient_name,
+      phone: a.phone,
+      address: a.address,
+      city: a.city,
+      province: a.province,
+      postal_code: a.postal_code,
+      is_default: a.is_default || false,
+    })),
   };
 
   const orders: OrderSummary[] = (rawOrders as any[]).map((o) => ({

@@ -172,6 +172,103 @@
   .table-clean td {
     @apply py-3.5 px-4 text-sm text-surface-ink;
   }
+
+  /* ---- Article Prose ---- */
+  /* Styles for AI-generated HTML content in Adaptive Articles */
+  .article-prose {
+    @apply text-base leading-relaxed text-surface-ink;
+  }
+
+  .article-prose h2 {
+    @apply font-display text-2xl font-bold text-surface-ink mt-10 mb-4 tracking-tight;
+  }
+
+  .article-prose h3 {
+    @apply font-display text-xl font-semibold text-surface-ink mt-8 mb-3;
+  }
+
+  .article-prose h4 {
+    @apply font-display text-lg font-semibold text-surface-ink mt-6 mb-2;
+  }
+
+  .article-prose p {
+    @apply mb-4 text-surface-ink/90 leading-7;
+  }
+
+  .article-prose a {
+    @apply text-accent-dark font-semibold underline underline-offset-2 decoration-accent/30 hover:decoration-accent transition-colors;
+  }
+
+  .article-prose strong {
+    @apply font-bold text-surface-ink;
+  }
+
+  .article-prose ul {
+    @apply mb-4 pl-5 space-y-2;
+  }
+
+  .article-prose ol {
+    @apply mb-4 pl-5 space-y-2 list-decimal;
+  }
+
+  .article-prose li {
+    @apply text-surface-ink/90 leading-7 list-disc;
+  }
+
+  .article-prose ol li {
+    @apply list-decimal;
+  }
+
+  /* Expert Consensus blockquotes — GEO strategy */
+  .article-prose blockquote {
+    @apply relative my-6 pl-5 pr-4 py-4 border-l-4 border-accent bg-accent/5 rounded-r-lg italic text-surface-sub;
+  }
+
+  .article-prose blockquote p {
+    @apply mb-0 text-surface-sub;
+  }
+
+  .article-prose img {
+    @apply rounded-lg my-6 max-w-full h-auto;
+  }
+
+  .article-prose hr {
+    @apply my-8 border-surface-muted/60;
+  }
+
+  .article-prose code {
+    @apply text-sm bg-surface-raised px-1.5 py-0.5 rounded font-mono text-surface-ink;
+  }
+
+  .article-prose pre {
+    @apply my-6 p-4 bg-surface-ink text-white rounded-lg overflow-x-auto;
+  }
+
+  .article-prose pre code {
+    @apply bg-transparent p-0 text-white;
+  }
+
+  /* TL;DR section — GEO strategy */
+  .article-prose .tldr {
+    @apply my-6 p-5 bg-surface-raised border border-surface-muted/60 rounded-lg;
+  }
+
+  .article-prose .tldr p {
+    @apply mb-0 font-medium text-surface-ink;
+  }
+
+  /* Product recommendations — GEO strategy */
+  .article-prose .product-recommendations {
+    @apply my-8 p-5 bg-surface-raised border border-accent/20 rounded-lg;
+  }
+
+  .article-prose .product-recommendations ul {
+    @apply space-y-3 pl-0;
+  }
+
+  .article-prose .product-recommendations li {
+    @apply list-none pl-0;
+  }
 }
 
 @layer utilities {

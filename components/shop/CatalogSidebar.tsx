@@ -97,7 +97,7 @@ function SidebarCard({
 }) {
   return (
     <div
-      className={`bg-white border border-surface-muted/70 rounded-2xl overflow-hidden shadow-sm ${className}`}
+      className={`bg-white border border-surface-muted/50 rounded-[20px] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 ${className}`}
     >
       {children}
     </div>
@@ -181,24 +181,24 @@ export default function CatalogSidebar({ initialParams }: CatalogSidebarProps) {
               <li key={cat.value}>
                 <button
                   onClick={() => handleCategoryChange(cat.value)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-200 text-left group/cat ${
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-300 text-left group/cat ${
                     isActive
-                      ? 'bg-surface-ink text-white shadow-sm'
-                      : 'text-surface-sub hover:text-surface-ink hover:bg-surface-raised/80'
+                      ? 'bg-surface-ink text-white shadow-md shadow-surface-ink/10'
+                      : 'text-surface-sub hover:text-surface-ink hover:bg-surface-raised/60'
                   }`}
                 >
                   <span
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors duration-200 ${
+                    className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors duration-300 ${
                       isActive
-                        ? 'bg-white/15'
-                        : 'bg-surface-raised group-hover/cat:bg-surface-overlay'
+                        ? 'bg-white/15 shadow-inner'
+                        : 'bg-surface-raised group-hover/cat:bg-white group-hover/cat:shadow-sm'
                     }`}
                   >
-                    <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-surface-border'}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-surface-border group-hover/cat:text-surface-ink'}`} />
                   </span>
                   <span className="flex-1">{cat.label}</span>
                   {isActive && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-white/70 shrink-0" />
+                    <motion.span layoutId="activeCat" className="w-1.5 h-1.5 rounded-full bg-white shrink-0" />
                   )}
                 </button>
               </li>

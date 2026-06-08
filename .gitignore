@@ -34,3 +34,7 @@ CLAUDE.md
 improvement.md
 scratchpad_*.md
 implementation_plan.md
+
+# Uploads
+public/uploads/*
+!public/uploads/.gitkeep

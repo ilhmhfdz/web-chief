@@ -283,19 +283,39 @@ export default function FaceAnalyzer() {
         creditsRemaining={aiCredits ?? 0}
       />
 
-      <div className="w-full max-w-5xl mx-auto space-y-12 p-4 md:p-8">
-        {/* ── Header ── */}
-        <div className="text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent-dark text-xs font-bold tracking-widest uppercase">
-            <Sparkles className="w-3 h-3" /> AI-Powered Grooming
+      <div className="w-full flex flex-col lg:flex-row gap-8 lg:gap-12 items-start justify-center">
+        
+        {/* ── Left Column: Controls & Context ── */}
+        <div className="w-full lg:w-[45%] flex flex-col gap-8 sticky top-24">
+          
+          <div className="space-y-6">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} 
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-raised border border-surface-muted/50 backdrop-blur-md shadow-sm text-accent-dark text-xs font-bold tracking-widest uppercase"
+            >
+              <Sparkles className="w-3.5 h-3.5" /> Pro Max AI
+            </motion.div>
+            
+            <motion.h1 
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+              className="text-4xl md:text-5xl font-extrabold tracking-tight text-surface-ink leading-tight [text-wrap:balance]"
+            >
+              Face Architect Visual
+            </motion.h1>
+            
+            <motion.p 
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+              className="text-surface-sub text-lg leading-relaxed [text-wrap:pretty]"
+            >
+              Dapatkan rekomendasi gaya rambut paling ideal berdasarkan analisis presisi proporsi tulang pipi dan bentuk rahang Anda.
+            </motion.p>
           </div>
-          <h1 className="heading-xl tracking-tight">Face Architect Visual</h1>
-          <p className="text-surface-sub max-w-2xl mx-auto text-lg mb-4">
-            Ambil foto wajah Anda untuk melihat perbandingan gaya rambut dengan AI Generatif.
-          </p>
 
           {/* ── Credit Badge ── */}
-          <div className="flex justify-center">
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
+            className="flex items-center"
+          >
             {authUser === 'loading' && (
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-raised border border-surface-muted text-sm text-surface-sub animate-pulse">
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -303,61 +323,48 @@ export default function FaceAnalyzer() {
               </div>
             )}
             {isLoggedIn && !isAdmin && (
-              <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-medium
+              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold shadow-sm backdrop-blur-md
                 ${creditsDisplay > 0
-                  ? 'bg-green-50 border-green-200 text-green-700'
-                  : 'bg-red-50 border-red-200 text-red-600'}`}
+                  ? 'bg-green-500/10 border-green-500/20 text-green-700'
+                  : 'bg-red-500/10 border-red-500/20 text-red-600'}`}
               >
                 <Sparkles className="w-4 h-4" />
-                <span className="font-bold">{creditsDisplay}</span>
-                <span className="opacity-80">credit tersisa</span>
+                <span>{creditsDisplay} Credit Tersisa</span>
               </div>
             )}
             {isAdmin && (
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-sm font-medium">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 text-sm font-semibold backdrop-blur-md shadow-sm">
                 <Sparkles className="w-4 h-4" />
-                Admin — Unlimited Generate
+                Admin / Unlimited
               </div>
             )}
             {!isLoggedIn && authUser !== 'loading' && (
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-raised border border-surface-muted text-sm text-surface-sub">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-raised border border-surface-muted text-sm text-surface-sub backdrop-blur-md shadow-sm">
                 <Sparkles className="w-4 h-4" />
-                <Link href="/login" className="text-accent-dark font-semibold hover:underline">Login</Link>
-                &nbsp;untuk mendapatkan 1 credit gratis
+                <Link href="/login" className="text-accent-dark font-bold hover:underline">Login</Link>
+                <span>untuk credit gratis</span>
               </div>
             )}
-          </div>
+          </motion.div>
 
-          {/* Tutorial Steps */}
-          {status === 'idle' && (
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-12 max-w-3xl mx-auto">
-              {[
-                { num: '1', title: 'Upload Foto', desc: 'Ambil foto wajah lurus dengan pencahayaan terang' },
-                { num: '2', title: 'Analisis AI', desc: 'AI mendeteksi bentuk wajah dan struktur proporsi Anda' },
-                { num: '3', title: 'Lihat Hasil', desc: 'Dapatkan rekomendasi gaya rambut dan produk terbaik' }
-              ].map((step, i) => (
-                <div key={i} className="flex flex-col items-center text-center max-w-[200px]">
-                  <div className="w-10 h-10 rounded-full bg-surface-ink text-white font-bold flex items-center justify-center mb-3">
-                    {step.num}
-                  </div>
-                  <h3 className="font-semibold text-surface-ink text-sm mb-1">{step.title}</h3>
-                  <p className="text-xs text-surface-sub leading-relaxed">{step.desc}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="flex justify-center gap-4 pt-4 flex-wrap">
+          {/* ── Controls ── */}
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+            className="pt-4 flex flex-col sm:flex-row gap-4"
+          >
             {status === 'idle' && (
               <>
                 <button
                   onClick={startCamera}
-                  className="btn-primary flex items-center gap-2 px-8 py-4"
+                  className="flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-surface-ink text-white font-semibold text-sm hover:-translate-y-0.5 hover:shadow-xl transition-all duration-300 relative overflow-hidden group"
                 >
-                  <Camera className="w-5 h-5" /> Gunakan Kamera
+                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+                  <Camera className="w-5 h-5 relative z-10" /> 
+                  <span className="relative z-10">Buka Kamera</span>
                 </button>
-                <label className="btn-secondary flex items-center gap-2 px-8 py-4 cursor-pointer">
-                  <Upload className="w-5 h-5" /> Upload Foto
+                <label className="flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-surface-raised border border-surface-muted/50 text-surface-ink font-semibold text-sm hover:-translate-y-0.5 hover:shadow-md hover:bg-surface-muted transition-all duration-300 cursor-pointer shadow-sm backdrop-blur-md">
+                  <Upload className="w-5 h-5" /> 
+                  <span>Upload Foto</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -368,79 +375,79 @@ export default function FaceAnalyzer() {
               </>
             )}
 
-            {status === 'generating' && (
-              <div className="flex flex-col items-center gap-4 px-8 py-8 bg-surface-raised border border-surface-muted rounded-2xl w-full max-w-lg mx-auto shadow-xl">
-                <div className="relative">
-                  <Loader2 className="w-10 h-10 animate-spin text-accent-dark" />
-                  <Sparkles className="absolute -top-1 -right-1 w-4 h-4 text-accent animate-pulse" />
-                </div>
-                <div className="space-y-2 text-center">
-                  <p className="text-lg font-bold text-surface-ink tracking-tight">AI sedang bekerja...</p>
-                  <motion.p 
-                    key={loadingStage}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-sm font-medium text-accent-dark h-5"
-                  >
-                    {LOADING_STAGES[loadingStage]}
-                  </motion.p>
-                  <p className="text-[11px] text-surface-sub font-medium bg-surface/50 py-1 px-3 rounded-full inline-block mt-2">
-                    Proses ini memakan waktu 1-3 menit, harap tidak menutup halaman.
-                  </p>
-                </div>
-                <div className="w-full bg-surface-muted rounded-full h-2 mt-4 overflow-hidden relative">
-                  <motion.div
-                    initial={{ x: '-100%' }}
-                    animate={{ x: '100%' }}
-                    transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
-                    className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-accent to-accent-dark rounded-full"
-                  />
-                </div>
-              </div>
-            )}
-
             {mode === 'camera' && status === 'capturing' && !imageUrl && (
               <button
                 onClick={capturePhoto}
-                className="btn-primary flex items-center gap-2 px-12 py-4"
+                className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-accent-dark text-white font-semibold text-sm hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgb(var(--color-accent-dark)/0.4)] transition-all duration-300"
               >
-                <Camera className="w-5 h-5" /> Ambil Foto
+                <Camera className="w-5 h-5" /> Ambil Foto Sekarang
               </button>
             )}
 
             {(status === 'done' || (status === 'capturing' && imageUrl)) && (
               <button
                 onClick={reset}
-                className="btn-secondary flex items-center gap-2 px-8 py-4"
+                className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-surface-raised border border-surface-muted/50 text-surface-ink font-semibold text-sm hover:-translate-y-0.5 hover:shadow-md hover:bg-surface-muted transition-all duration-300 shadow-sm backdrop-blur-md"
               >
-                <RefreshCcw className="w-4 h-4" /> Mulai Ulang
+                <RefreshCcw className="w-5 h-5" /> Mulai Analisis Baru
               </button>
             )}
-          </div>
+          </motion.div>
+
+          {/* ── Error Banner ── */}
+          {error && (
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-red-500/10 border border-red-500/20 text-red-700 px-6 py-4 rounded-2xl flex items-start gap-3 backdrop-blur-md">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold">{error}</p>
+              </div>
+              <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700 text-xs font-medium underline">
+                Tutup
+              </button>
+            </motion.div>
+          )}
+
+          {/* Tutorial / Features (Only show when idle to save space later) */}
+          {status === 'idle' && (
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+              className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4"
+            >
+              {[
+                { title: 'Presisi Tinggi', desc: 'Pemindaian rasio wajah AI' },
+                { title: 'Personalisasi', desc: 'Gaya rambut yang cocok untuk Anda' }
+              ].map((ft, i) => (
+                <div key={i} className="p-4 rounded-2xl bg-surface-raised/50 border border-surface-muted/30 backdrop-blur-sm">
+                  <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center mb-3">
+                    <Sparkles className="w-4 h-4 text-accent-dark" />
+                  </div>
+                  <h4 className="font-semibold text-sm text-surface-ink mb-1">{ft.title}</h4>
+                  <p className="text-xs text-surface-sub">{ft.desc}</p>
+                </div>
+              ))}
+            </motion.div>
+          )}
         </div>
 
-        {/* ── Error Banner ── */}
-        {error && (
-          <div className="max-w-3xl mx-auto bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 shrink-0" />
-            <p className="text-sm font-medium">{error}</p>
-            <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-600 text-xs underline">
-              Tutup
-            </button>
-          </div>
-        )}
+        {/* ── Right Column: Interactive Viewport ── */}
+        <div className="w-full lg:w-[55%] flex flex-col gap-6 relative">
+          
+          <motion.div 
+            layout
+            className="relative w-full aspect-[4/3] sm:aspect-[3/4] md:aspect-[4/3] lg:aspect-[4/5] xl:aspect-[3/4] bg-surface-raised/40 border border-surface-muted/50 rounded-[2rem] overflow-hidden shadow-2xl flex items-center justify-center backdrop-blur-xl"
+          >
+            {/* Ambient inner glow */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-surface-raised via-transparent to-surface-muted/20 mix-blend-overlay pointer-events-none z-0" />
 
-        {/* ── Main Viewport ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start max-w-5xl mx-auto">
-          {/* Source Image Panel */}
-          <div className="relative w-full aspect-[4/3] bg-surface-raised border border-surface-muted rounded-3xl overflow-hidden shadow-lg flex items-center justify-center">
             {status === 'idle' && (
-              <div className="text-surface-sub flex flex-col items-center">
-                <div className="w-20 h-20 rounded-full bg-surface/50 flex items-center justify-center mb-6">
-                  <Camera className="w-10 h-10 opacity-40" />
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-surface-sub flex flex-col items-center z-10 p-8 text-center">
+                <div className="w-24 h-24 rounded-full bg-surface-muted/30 flex items-center justify-center mb-6 shadow-inner relative">
+                  <div className="absolute inset-0 rounded-full border border-surface-muted animate-[spin_10s_linear_infinite]" />
+                  <Camera className="w-10 h-10 opacity-50" />
                 </div>
-                <p className="label-upper tracking-widest">Siap Foto</p>
-              </div>
+                <p className="text-sm font-semibold tracking-widest uppercase text-surface-ink/50 mb-2">Area Pemindaian</p>
+                <p className="text-xs max-w-[250px] [text-wrap:balance]">Pastikan wajah berada di tengah dan pencahayaan cukup terang.</p>
+              </motion.div>
             )}
 
             {mode === 'camera' && status === 'capturing' && !imageUrl && (
@@ -449,63 +456,122 @@ export default function FaceAnalyzer() {
                 audio={false}
                 screenshotFormat="image/jpeg"
                 videoConstraints={WEBCAM_CONFIG}
-                className="absolute inset-0 w-full h-full object-cover scale-x-[-1]"
+                className="absolute inset-0 w-full h-full object-cover scale-x-[-1] z-10"
               />
             )}
 
-            {imageUrl && (
+            {imageUrl && status !== 'done' && (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 src={imageUrl}
                 alt="Source"
-                style={{ objectFit: 'cover' }}
-                className={`absolute inset-0 w-full h-full ${mode === 'camera' && (status === 'capturing' || status === 'generating' || status === 'done') ? 'scale-x-[-1]' : ''}`}
+                className={`absolute inset-0 w-full h-full object-cover z-10 ${mode === 'camera' ? 'scale-x-[-1]' : ''}`}
               />
             )}
             
+            {/* Cinematic Generating State over the source image */}
             {status === 'generating' && (
-              <div className="absolute inset-0 z-20 bg-surface/80 backdrop-blur-sm flex flex-col items-center justify-center">
-                <div className="w-16 h-16 border-4 border-accent/20 border-t-accent-dark rounded-full animate-spin" />
+              <motion.div 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                className="absolute inset-0 z-20 overflow-hidden flex flex-col"
+              >
+                {/* Darken overlay */}
+                <div className="absolute inset-0 bg-surface-ink/60 backdrop-blur-sm" />
+                
+                {/* Laser scanner line */}
+                <motion.div 
+                  className="absolute top-0 left-0 right-0 h-1 bg-accent shadow-[0_0_20px_rgb(var(--color-accent))] z-30"
+                  animate={{ top: ['0%', '100%', '0%'] }}
+                  transition={{ duration: 3, ease: 'linear', repeat: Infinity }}
+                />
+
+                {/* Progress Content */}
+                <div className="relative z-30 flex-1 flex flex-col items-center justify-center p-8">
+                  <div className="relative w-20 h-20 mb-8">
+                    <motion.div 
+                      className="absolute inset-0 border-4 border-accent-dark/30 rounded-full"
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
+                    <div className="absolute inset-0 border-4 border-transparent border-t-accent-dark rounded-full animate-spin" />
+                    <Sparkles className="absolute inset-0 m-auto w-8 h-8 text-white animate-pulse" />
+                  </div>
+                  
+                  <div className="text-center space-y-3 relative w-full h-16">
+                    <motion.p 
+                      key={loadingStage}
+                      initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
+                      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                      exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
+                      className="text-lg font-bold text-white absolute inset-0 [text-wrap:balance]"
+                    >
+                      {LOADING_STAGES[loadingStage]}
+                    </motion.p>
+                  </div>
+                  <div className="w-48 bg-white/10 rounded-full h-1 mt-6 overflow-hidden">
+                    <motion.div
+                      className="h-full bg-accent-dark"
+                      initial={{ width: '0%' }}
+                      animate={{ width: '100%' }}
+                      transition={{ duration: 2, ease: 'linear', repeat: Infinity }}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* When Done, just show the Result Card filling this space or transitioning */}
+            {status === 'done' && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 120 }}
+                className="absolute inset-0 z-30 bg-surface w-full h-full overflow-y-auto custom-scrollbar"
+              >
+                <div className="p-4 md:p-6 w-full h-full">
+                  <HairstyleVisualCard 
+                    imageUrl={resultImageUrl} 
+                    analysisText={analysisText}
+                    isLoading={false} 
+                  />
+                </div>
+              </motion.div>
+            )}
+          </motion.div>
+        </div>
+      </div>
+
+      {/* ── Product Recommendations (Appears below when done) ── */}
+      {(status === 'done' || filteredProducts.length > 0) && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full mt-16 pt-16 border-t border-surface-muted/50"
+        >
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8 items-end justify-between mb-8">
+            <div className="max-w-2xl">
+              <h3 className="text-3xl font-bold tracking-tight text-surface-ink mb-3">Sempurnakan Gaya Anda</h3>
+              <p className="text-surface-sub text-lg [text-wrap:pretty]">
+                Produk pilihan dari expert kami untuk menata rekomendasi gaya rambut AI Anda di rumah.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((product, index) => (
+                <ProductCard key={product._id} product={product} index={index} />
+              ))
+            ) : (
+              <div className="col-span-full py-16 text-center bg-surface-raised/50 rounded-3xl border border-dashed border-surface-muted/50 backdrop-blur-sm">
+                <p className="text-surface-sub font-medium">
+                  Belum ada produk styling tersedia saat ini.
+                </p>
               </div>
             )}
           </div>
-
-          {/* Result Image Panel */}
-          <div className="w-full flex items-center justify-center">
-            <HairstyleVisualCard 
-              imageUrl={resultImageUrl} 
-              analysisText={analysisText}
-              isLoading={status === 'generating'} 
-            />
-          </div>
-        </div>
-
-        {/* Product recommendations */}
-        {(status === 'done' || filteredProducts.length > 0) && (
-          <div className="space-y-8 pt-12 border-t border-surface-muted">
-            <div>
-              <h3 className="heading-md tracking-tight">Rekomendasi Produk Styling</h3>
-              <p className="text-surface-sub">
-                Produk pilihan untuk memaksimalkan gaya rambut baru Anda.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              {filteredProducts.length > 0 ? (
-                filteredProducts.map((product, index) => (
-                  <ProductCard key={product._id} product={product} index={index} />
-                ))
-              ) : (
-                <div className="col-span-full py-12 text-center bg-surface-raised rounded-2xl border border-dashed border-surface-muted">
-                  <p className="text-surface-sub italic text-sm">
-                    Belum ada produk styling tersedia saat ini.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+        </motion.div>
+      )}
     </>
   );
 }

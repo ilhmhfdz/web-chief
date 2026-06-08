@@ -4,6 +4,19 @@ import bcrypt from 'bcryptjs';
 /**
  * Interface representing a User document in MongoDB.
  */
+export interface IAddress {
+  _id?: mongoose.Types.ObjectId;
+  recipient_name: string;
+  phone: string;
+  address: string;
+  city: string;
+  province: string;
+  district: string;
+  district_id: string;
+  postal_code: string;
+  is_default: boolean;
+}
+
 export interface IUser extends Document {
   name: string;
   email: string;
@@ -12,13 +25,27 @@ export interface IUser extends Document {
   face_shape?: 'Oval' | 'Round' | 'Square' | 'Heart' | 'Oblong';
   ai_credits: number;             // AI generate credits remaining
   ai_credits_used_total: number;  // Total credits ever used (analytics)
+  addresses: IAddress[];
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
+const addressSchema = new Schema<IAddress>({
+  recipient_name: { type: String, required: true },
+  phone: { type: String, required: true },
+  address: { type: String, required: true },
+  city: { type: String, required: true },
+  province: { type: String, required: true },
+  district: { type: String, required: true },
+  district_id: { type: String, required: true },
+  postal_code: { type: String, required: true },
+  is_default: { type: Boolean, default: false }
+});
+
 const userSchema = new Schema<IUser>(
   {
+    addresses: [addressSchema],
     name: {
       type: String,
       required: [true, 'Name is required'],

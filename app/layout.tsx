@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
-import { Inter, Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
+import { Inter, Playfair_Display, Plus_Jakarta_Sans, Rubik, Nunito_Sans } from 'next/font/google';
 import './globals.css';
+import React, { Suspense } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import WhatsAppFloatingButton from '@/components/layout/WhatsAppFloatingButton';
@@ -24,6 +25,18 @@ const playfair = Playfair_Display({
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
   variable: '--font-plus-jakarta',
+  display: 'swap',
+});
+
+const rubik = Rubik({
+  subsets: ['latin'],
+  variable: '--font-rubik',
+  display: 'swap',
+});
+
+const nunitoSans = Nunito_Sans({
+  subsets: ['latin'],
+  variable: '--font-nunito-sans',
   display: 'swap',
 });
 
@@ -59,7 +72,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id" className={`${inter.variable} ${playfair.variable} ${plusJakarta.variable}`}>
+    <html lang="id" className={`${inter.variable} ${playfair.variable} ${plusJakarta.variable} ${rubik.variable} ${nunitoSans.variable}`}>
       <body className="flex flex-col min-h-screen">
         <CartProvider>
           {/* Ambient background glow */}
@@ -71,7 +84,9 @@ export default function RootLayout({
           </div>
 
           {/* Navigation */}
-          <Navbar />
+          <Suspense fallback={<div className="h-16 lg:h-20 bg-white border-b border-surface-muted/30" />}>
+            <Navbar />
+          </Suspense>
 
           {/* Main content — extra bottom padding for mobile nav */}
           <main className="relative z-10 flex-1 pb-16 lg:pb-0">

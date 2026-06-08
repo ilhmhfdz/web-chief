@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   LayoutDashboard, Package, ShoppingCart, BookOpen, Bot,
-  LogOut, ShoppingBag, X, Eye, MessageSquare,
+  LogOut, ShoppingBag, X, Eye, MessageSquare, FileText,
 } from 'lucide-react';
 import { apiFetch } from '@/lib/utils/apiFetch';
 
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { label: 'Chat',          href: '/admin/chat',           icon: MessageSquare },
   { label: 'Knowledge Base', href: '/admin/knowledge-base', icon: BookOpen },
   { label: 'AI Persona',    href: '/admin/ai-persona',     icon: Bot },
+  { label: 'Artikel GEO',   href: '/admin/adaptive-articles', icon: FileText },
 ];
 
 async function handleLogout() {

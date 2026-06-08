@@ -17,6 +17,11 @@ import {
   X,
   SlidersHorizontal,
   ChevronRight,
+  Flame,
+  Clock,
+  Trophy,
+  TrendingDown,
+  TrendingUp,
 } from 'lucide-react';
 import { PRODUCT_CATEGORIES } from '@/types/product';
 import type { ProductCategory, ProductsQueryParams } from '@/types/product';
@@ -110,6 +115,9 @@ export default function MobileFilterDrawer({ initialParams }: MobileFilterDrawer
   const [minRating, setMinRating] = useState<number | undefined>(
     initialParams.minRating
   );
+  const [sort, setSort] = useState<NonNullable<ProductsQueryParams['sort']>>(
+    (initialParams.sort as NonNullable<ProductsQueryParams['sort']>) ?? 'popular'
+  );
   const [reviewsExpanded, setReviewsExpanded] = useState(false);
 
   // Drag-to-dismiss state
@@ -142,10 +150,10 @@ export default function MobileFilterDrawer({ initialParams }: MobileFilterDrawer
 
   const applyFilters = useCallback(
     (overrides: Partial<ProductsQueryParams> = {}) => {
-      const params = { page: 1, category, minRating, ...initialParams, ...overrides };
+      const params = { page: 1, category, minRating, sort, ...initialParams, ...overrides };
       router.push(`${pathname}${buildQueryString(params)}`);
     },
-    [router, pathname, category, minRating, initialParams]
+    [router, pathname, category, minRating, sort, initialParams]
   );
 
   const handleCategoryChange = (value: ProductCategory | 'all') => {
@@ -159,10 +167,16 @@ export default function MobileFilterDrawer({ initialParams }: MobileFilterDrawer
     applyFilters({ minRating: next });
   };
 
+  const handleSortChange = (value: NonNullable<ProductsQueryParams['sort']>) => {
+    setSort(value);
+    applyFilters({ sort: value });
+  };
+
   const handleReset = () => {
     setCategory('all');
     setMinRating(undefined);
-    applyFilters({ category: 'all', minRating: undefined });
+    setSort('popular');
+    applyFilters({ category: 'all', minRating: undefined, sort: 'popular' });
   };
 
   // Aggregate stats
@@ -200,12 +214,11 @@ export default function MobileFilterDrawer({ initialParams }: MobileFilterDrawer
     <>
       {/* ── Trigger Button ── */}
       <button
-        id="mobile-filter-btn"
         onClick={() => setIsOpen(true)}
-        className={`lg:hidden inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold border transition-all duration-200 ${
+        className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-bold border transition-all duration-200 ${
           activeFilterCount > 0
             ? 'bg-surface-ink text-white border-surface-ink'
-            : 'bg-white text-surface-sub border-surface-muted hover:border-surface-border hover:text-surface-ink'
+            : 'bg-white text-surface-sub border-surface-muted/60 hover:border-surface-ink hover:text-surface-ink'
         }`}
         aria-label="Buka filter"
       >
@@ -224,18 +237,19 @@ export default function MobileFilterDrawer({ initialParams }: MobileFilterDrawer
           {/* ── Backdrop ── */}
           {isOpen && (
             <div
-              className="lg:hidden fixed inset-0 z-[60] bg-black/40 backdrop-blur-[2px] animate-fade-in"
+              className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-[2px] animate-fade-in"
               onClick={() => setIsOpen(false)}
               aria-hidden="true"
             />
           )}
 
-          {/* ── Drawer (Bottom Sheet) ── */}
+          {/* ── Drawer (Bottom Sheet on Mobile, Right Drawer on Desktop) ── */}
           <div
             ref={drawerRef}
-            className={`lg:hidden fixed inset-x-0 bottom-0 z-[70] flex flex-col bg-white rounded-t-2xl shadow-2xl transition-transform duration-300 ease-out ${
-              isOpen ? 'translate-y-0' : 'translate-y-full'
-            }`}
+            className={`fixed z-[70] flex flex-col bg-white shadow-2xl transition-transform duration-300 ease-out
+              inset-x-0 bottom-0 rounded-t-2xl lg:inset-y-0 lg:right-0 lg:left-auto lg:w-[400px] lg:rounded-t-none lg:rounded-l-2xl
+              ${isOpen ? 'translate-y-0 lg:translate-x-0' : 'translate-y-full lg:translate-y-0 lg:translate-x-full'}
+            `}
             style={{ maxHeight: '88dvh' }}
             role="dialog"
             aria-modal="true"
@@ -309,6 +323,41 @@ export default function MobileFilterDrawer({ initialParams }: MobileFilterDrawer
                           {isActive && (
                             <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white/70 shrink-0" />
                           )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+
+                <div className="h-px bg-surface-muted/60" />
+
+                {/* ---- Sort ---- */}
+                <section>
+                  <h3 className="text-[11px] font-bold uppercase tracking-widest text-surface-sub mb-3">
+                    Urutkan Berdasarkan
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { value: 'popular', label: 'Populer', icon: Flame },
+                      { value: 'newest', label: 'Terbaru', icon: Clock },
+                      { value: 'bestseller', label: 'Terlaris', icon: Trophy },
+                      { value: 'price_asc', label: 'Termurah', icon: TrendingDown },
+                      { value: 'price_desc', label: 'Termahal', icon: TrendingUp },
+                    ].map((opt) => {
+                      const isActive = sort === opt.value;
+                      const Icon = opt.icon;
+                      return (
+                        <button
+                          key={opt.value}
+                          onClick={() => handleSortChange(opt.value as any)}
+                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 border text-left ${
+                            isActive
+                              ? 'bg-surface-ink text-white border-surface-ink'
+                              : 'bg-surface-raised text-surface-sub border-transparent hover:border-surface-muted hover:text-surface-ink'
+                          }`}
+                        >
+                          <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-surface-border'}`} />
+                          <span className="truncate">{opt.label}</span>
                         </button>
                       );
                     })}

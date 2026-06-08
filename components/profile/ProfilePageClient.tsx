@@ -10,6 +10,7 @@ import type { OrderSummary } from '@/app/(shop)/profile/page';
 import dynamic from 'next/dynamic';
 
 const UserChat = dynamic(() => import('@/components/profile/UserChat'), { ssr: false });
+import ProfileAddressList from './ProfileAddressList';
 
 interface ProfilePageClientProps {
   user: {
@@ -17,6 +18,7 @@ interface ProfilePageClientProps {
     email: string;
     role: string;
     ai_credits: number;
+    addresses?: any[];
   };
   orders: OrderSummary[];
 }
@@ -53,7 +55,8 @@ export default function ProfilePageClient({ user, orders }: ProfilePageClientPro
           <div className="p-0 border-t-0 flex-1 flex flex-col">
             {activeTab === 'Biodata Diri' && <ProfileContent user={user} />}
             {activeTab === 'Chat' && <UserChat />}
-            {activeTab !== 'Biodata Diri' && activeTab !== 'Chat' && (
+            {activeTab === 'Daftar Alamat' && <ProfileAddressList initialAddresses={user.addresses || []} />}
+            {activeTab !== 'Biodata Diri' && activeTab !== 'Chat' && activeTab !== 'Daftar Alamat' && (
               <div className="p-8 text-center text-surface-sub">
                 <p>Konten untuk {activeTab} akan segera hadir.</p>
               </div>

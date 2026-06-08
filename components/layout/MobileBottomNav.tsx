@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, LayoutGrid, Sparkles, MessageCircle, User } from 'lucide-react';
+import { Home, LayoutGrid, Sparkles, MessageCircle, User, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { label: 'Beranda', href: '/', icon: Home },
   { label: 'Katalog', href: '/catalog', icon: LayoutGrid },
   { label: 'AI', href: '/ai-recommendation', icon: Sparkles, highlight: true },
-  { label: 'Kontak', href: '/support', icon: MessageCircle },
+  { label: 'Artikel', href: '/articles', icon: FileText },
   { label: 'Akun', href: '/login', icon: User, isAuth: true },
 ];
 
