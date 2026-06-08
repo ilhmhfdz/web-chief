@@ -52,7 +52,7 @@ export default function ProductGrid({
   }
 
   return (
-    <div className={`grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] lg:grid-cols-4 gap-5 sm:gap-6 items-stretch`}>
+    <div className={`grid grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] lg:grid-cols-4 gap-3 sm:gap-6 items-stretch`}>
       {products.map((product, index) => (
         <ProductCard
           key={product._id}

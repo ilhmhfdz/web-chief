@@ -239,11 +239,11 @@ export default function ProductCard({ product, index = 0, sortMode }: ProductCar
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.06, ease: [0.25, 0.1, 0.25, 1] }}
-      className="group flex flex-col h-full bg-white rounded-[24px] p-2 border border-surface-muted/50 shadow-sm hover:shadow-md transition-shadow duration-300"
+      className="group flex flex-col h-full bg-white rounded-[24px] p-2 shadow-sm hover:shadow-md transition-shadow duration-300"
       style={{ scale: 1, translate: '0px', containerType: 'inline-size' }} /* container query and hover stack context */
     >
       {/* ── Row 1: Product Image Container ── */}
-      <div className="relative block aspect-[4/5] bg-surface-raised rounded-2xl overflow-hidden mb-3 border border-surface-muted/50 group-hover:border-surface-border/80 transition-all duration-500 shadow-sm group-hover:shadow-2xl group-hover:shadow-surface-ink/10 z-0">
+      <div className="relative block aspect-square bg-surface-raised rounded-2xl overflow-hidden mb-2 transition-all duration-500 shadow-sm group-hover:shadow-2xl group-hover:shadow-surface-ink/10 z-0">
         <Link href={`/catalog/${product.slug}`} className="block w-full h-full">
           <Image
             src={product.image_url}
@@ -318,10 +318,10 @@ export default function ProductCard({ product, index = 0, sortMode }: ProductCar
       </div>
 
       {/* ── Row 2: Title ── */}
-      <div className="px-1 mb-1.5 flex items-start">
+      <div className="px-1 mb-1 flex items-start">
         <Link href={`/catalog/${product.slug}`} className="w-full">
           <h3 
-            className="font-bold font-ecommerce text-surface-ink group-hover:text-surface-sub transition-colors duration-200 line-clamp-2 leading-snug"
+            className="font-bold font-ecommerce text-surface-ink group-hover:text-surface-sub transition-colors duration-200 line-clamp-2 leading-tight"
             style={{ fontSize: 'clamp(0.875rem, 5cqi, 1.125rem)' }}
           >
             {product.name}
@@ -330,13 +330,13 @@ export default function ProductCard({ product, index = 0, sortMode }: ProductCar
       </div>
 
       {/* ── Row 3: Rating ── */}
-      <div className="px-1 mb-3 flex items-center">
+      <div className="px-1 mb-1.5 flex items-center">
         <StarRow rating={sales.rating} reviewCount={sales.reviewCount} />
       </div>
 
       {/* ── Row 4: Price & Actions ── */}
-      <div className="px-1 flex flex-col justify-end gap-3 mt-auto mb-2">
-        <div className="flex items-center flex-wrap gap-2.5">
+      <div className="px-1 flex flex-col justify-end gap-1.5 mt-auto">
+        <div className="flex flex-col items-start gap-1">
           <p 
             className="font-black text-surface-ink tracking-tight"
             style={{ fontSize: 'clamp(1rem, 6cqi, 1.25rem)' }}
@@ -347,7 +347,7 @@ export default function ProductCard({ product, index = 0, sortMode }: ProductCar
         </div>
 
         {/* Mobile Add to Cart */}
-        <div className="lg:hidden flex items-stretch gap-1.5 mt-2">
+        <div className="lg:hidden flex items-stretch gap-1.5 mt-1">
           <button
             onClick={handleAddToCart}
             disabled={outOfStock}
