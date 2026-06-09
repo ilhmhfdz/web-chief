@@ -104,20 +104,20 @@ export default async function AdaptiveArticlesPage() {
         <StatCard
           label="Total Artikel"
           value={stats.total}
-          icon={FileText}
+          icon={<FileText className="w-6 h-6" />}
           variant="brand"
         />
         <StatCard
           label="Artikel Aktif"
           value={stats.active}
-          icon={Activity}
+          icon={<Activity className="w-6 h-6" />}
           variant="green"
           sub="Tayang & akan diadaptasi cron"
         />
         <StatCard
           label="Draft"
           value={stats.draft}
-          icon={XCircle}
+          icon={<XCircle className="w-6 h-6" />}
           variant="default"
           sub="Menunggu review & publish"
         />
@@ -131,7 +131,7 @@ export default async function AdaptiveArticlesPage() {
                 })
               : '—'
           }
-          icon={Clock}
+          icon={<Clock className="w-6 h-6" />}
           variant="purple"
           sub={
             stats.lastAdaptedAt
