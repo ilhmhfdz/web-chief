@@ -20,7 +20,8 @@ export interface IAddress {
 export interface IUser extends Document {
   name: string;
   email: string;
-  password?: string; // Optional because we might not return it
+  password?: string; // Optional because we might not return it, and not required for Google Auth
+  authProvider: 'local' | 'google';
   role: 'admin' | 'customer';
   face_shape?: 'Oval' | 'Round' | 'Square' | 'Heart' | 'Oblong';
   ai_credits: number;             // AI generate credits remaining
@@ -61,9 +62,13 @@ const userSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
       minlength: [8, 'Password must be at least 8 characters long'],
       select: false, // Do not return password by default
+    },
+    authProvider: {
+      type: String,
+      enum: ['local', 'google'],
+      default: 'local',
     },
     role: {
       type: String,

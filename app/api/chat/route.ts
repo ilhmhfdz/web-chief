@@ -60,10 +60,34 @@ export async function POST(req: Request) {
         senderRole: user.role === 'admin' ? 'admin' : 'user',
         message
       }],
+      handledBy: 'ai',
       lastMessageAt: new Date()
     });
     
     await newConv.save();
+
+    // Trigger AI Response if created by user
+    if (user.role !== 'admin') {
+      try {
+        const { generateResponse } = await import('@/lib/ai/rag');
+        
+        const aiReply = await generateResponse(message, []);
+
+        await Conversation.findByIdAndUpdate(newConv._id, {
+          $push: { messages: { senderRole: 'ai', message: aiReply } },
+          $set: { lastMessageAt: new Date() }
+        });
+
+        newConv.messages.push({
+          senderRole: 'ai',
+          message: aiReply
+        });
+        newConv.lastMessageAt = new Date();
+      } catch (aiError) {
+        console.error('AI Response generation error on creation:', aiError);
+      }
+    }
+
     return NextResponse.json({ conversation: newConv });
   } catch (error) {
     console.error('API Chat POST error:', error);

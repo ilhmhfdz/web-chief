@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, MessageSquare, Search } from 'lucide-react';
+import { Send, MessageSquare, Search, Bot } from 'lucide-react';
 import { apiFetch } from '@/lib/utils/apiFetch';
 
 interface Message {
   _id: string;
-  senderRole: 'user' | 'admin';
+  senderRole: 'user' | 'admin' | 'ai';
   message: string;
   createdAt: string;
 }
@@ -23,6 +23,7 @@ interface Conversation {
   orderId?: string;
   userId: User;
   messages: Message[];
+  handledBy?: 'ai' | 'human';
   lastMessageAt: string;
 }
 
@@ -147,7 +148,14 @@ export default function AdminChatClient() {
                       {new Date(conv.lastMessageAt).toLocaleDateString()}
                     </span>
                   </div>
-                  <p className="text-xs text-brand-600 truncate font-medium mb-1">{conv.subject}</p>
+                  <p className="text-xs text-brand-600 truncate font-medium mb-1 flex items-center gap-2">
+                    {conv.subject}
+                    {conv.handledBy === 'ai' && (
+                      <span className="bg-brand-100 text-brand-700 text-[9px] px-1.5 py-0.5 rounded flex items-center gap-1">
+                        <Bot className="w-3 h-3" /> AI
+                      </span>
+                    )}
+                  </p>
                   <p className="text-xs text-surface-sub truncate">
                     {conv.messages[conv.messages.length - 1]?.message || 'No messages'}
                   </p>
@@ -171,19 +179,43 @@ export default function AdminChatClient() {
                     <p className="text-xs text-surface-sub">{activeConv.subject}</p>
                   </div>
                 </div>
+                {activeConv.handledBy === 'ai' && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        await apiFetch(`/api/chat/${activeConvId}`, {
+                          method: 'PATCH',
+                          body: JSON.stringify({ handledBy: 'human' })
+                        });
+                        setConversations(conversations.map(c => c._id === activeConvId ? { ...c, handledBy: 'human' } : c));
+                      } catch (err) { console.error(err); }
+                    }}
+                    className="text-xs bg-brand-100 text-brand-700 hover:bg-brand-200 px-3 py-1.5 rounded-lg font-medium transition-colors"
+                  >
+                    Ambil Alih (Take Over)
+                  </button>
+                )}
               </div>
               
               <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto flex flex-col gap-3 scroll-smooth">
                 {messages.map((msg, i) => (
                   <div 
                     key={msg._id || i} 
-                    className={`max-w-[80%] rounded-xl px-4 py-2 text-sm shadow-sm ${
+                    className={`max-w-[80%] rounded-xl px-4 py-2 text-sm shadow-sm flex flex-col ${
                       msg.senderRole === 'admin' 
                         ? 'bg-brand-500 text-white self-end rounded-br-none' 
+                        : msg.senderRole === 'ai'
+                        ? 'bg-brand-100 border border-brand-200 text-brand-900 self-end rounded-br-none'
                         : 'bg-white text-surface-ink border border-surface-muted self-start rounded-bl-none'
                     }`}
                   >
-                    <p>{msg.message}</p>
+                    {msg.senderRole === 'ai' && (
+                      <div className="flex items-center gap-1.5 mb-1 text-brand-600">
+                        <Bot className="w-3.5 h-3.5" />
+                        <span className="text-[10px] font-bold">AI Assistant</span>
+                      </div>
+                    )}
+                    <p className="whitespace-pre-wrap">{msg.message}</p>
                     <span className={`text-[10px] mt-1 block ${msg.senderRole === 'admin' ? 'text-brand-100' : 'text-surface-sub'}`}>
                       {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>

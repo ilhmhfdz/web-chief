@@ -9,6 +9,7 @@ import { useState, useEffect, useCallback } from 'react';
 export interface AuthUser {
   userId: string;
   role: 'admin' | 'customer';
+  name?: string;
 }
 
 // ============================================================

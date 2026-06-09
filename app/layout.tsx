@@ -8,6 +8,7 @@ import WhatsAppFloatingButton from '@/components/layout/WhatsAppFloatingButton';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import { CartProvider } from '@/contexts/CartContext';
 import { Toaster } from 'sonner';
+import ChatWidget from '@/components/ai/ChatWidget';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -73,7 +74,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" className={`${inter.variable} ${playfair.variable} ${plusJakarta.variable} ${rubik.variable} ${nunitoSans.variable}`}>
-      <body className="flex flex-col min-h-screen">
+      <body className="font-sans antialiased flex flex-col min-h-screen">
         <CartProvider>
           {/* Ambient background glow */}
           <div
@@ -95,6 +96,9 @@ export default function RootLayout({
 
           {/* Footer */}
           <Footer />
+
+          {/* Chat Widget */}
+          <ChatWidget />
 
           {/* WhatsApp FAB — component handles its own fixed positioning */}
           <WhatsAppFloatingButton />

@@ -44,11 +44,11 @@ export default function ProductChatButton({ productName, iconOnly = false }: Pro
 
     const fetchMessages = async () => {
       try {
-        const data = await apiFetch('/api/chat') as any;
+        const data = await apiFetch('/api/chat', { cache: 'no-store' }) as any;
         if (data.conversations?.length > 0) {
           const conv = data.conversations[0];
           if (conv._id !== conversation?._id) setConversation(conv);
-          const detail = await apiFetch(`/api/chat/${conv._id}`) as any;
+          const detail = await apiFetch(`/api/chat/${conv._id}`, { cache: 'no-store' }) as any;
           setMessages(detail.conversation?.messages || []);
         }
       } catch { /* silent */ }

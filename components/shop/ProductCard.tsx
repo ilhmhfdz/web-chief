@@ -71,11 +71,10 @@ function StarRow({ rating, reviewCount }: { rating: number; reviewCount: number 
         {Array.from({ length: 5 }, (_, i) => (
           <Star
             key={i}
-            className={`w-3 h-3 ${
-              i < Math.round(rating)
+            className={`w-3 h-3 ${i < Math.round(rating)
                 ? 'fill-amber-400 text-amber-400'
                 : 'fill-surface-muted text-surface-muted'
-            }`}
+              }`}
           />
         ))}
       </div>
@@ -239,20 +238,19 @@ export default function ProductCard({ product, index = 0, sortMode }: ProductCar
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.06, ease: [0.25, 0.1, 0.25, 1] }}
-      className="group flex flex-col h-full bg-white rounded-[24px] p-2 shadow-sm hover:shadow-md transition-shadow duration-300"
+      className="group flex flex-col h-full bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
       style={{ scale: 1, translate: '0px', containerType: 'inline-size' }} /* container query and hover stack context */
     >
       {/* ── Row 1: Product Image Container ── */}
-      <div className="relative block aspect-square bg-surface-raised rounded-2xl overflow-hidden mb-2 transition-all duration-500 shadow-sm group-hover:shadow-2xl group-hover:shadow-surface-ink/10 z-0">
+      <div className="relative block aspect-square w-full bg-surface-raised mb-2 transition-all duration-500 z-0">
         <Link href={`/catalog/${product.slug}`} className="block w-full h-full">
           <Image
             src={product.image_url}
             alt={product.name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className={`object-cover transition-transform duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:scale-[1.08] ${
-              outOfStock ? 'opacity-40 grayscale' : ''
-            }`}
+            className={`object-cover transition-transform duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:scale-[1.08] ${outOfStock ? 'opacity-40 grayscale' : ''
+              }`}
           />
         </Link>
 
@@ -286,13 +284,12 @@ export default function ProductCard({ product, index = 0, sortMode }: ProductCar
               <button
                 onClick={handleAddToCart}
                 disabled={outOfStock}
-                className={`${outOfStock ? 'w-full' : 'w-10 shrink-0'} flex items-center justify-center rounded-xl transition-all duration-300 backdrop-blur-md ${
-                  isJustAdded
+                className={`${outOfStock ? 'w-full' : 'w-10 shrink-0'} flex items-center justify-center rounded-xl transition-all duration-300 backdrop-blur-md ${isJustAdded
                     ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
                     : outOfStock
-                    ? 'bg-white/10 border border-white/20 text-white cursor-not-allowed text-[11px] font-bold uppercase tracking-wider py-2.5'
-                    : 'bg-white/95 border border-white/20 text-surface-ink hover:bg-white shadow-xl shadow-black/20 hover:scale-[1.02] active:scale-[0.98]'
-                }`}
+                      ? 'bg-white/10 border border-white/20 text-white cursor-not-allowed text-[11px] font-bold uppercase tracking-wider py-2.5'
+                      : 'bg-white/95 border border-white/20 text-surface-ink hover:bg-white shadow-xl shadow-black/20 hover:scale-[1.02] active:scale-[0.98]'
+                  }`}
                 title={outOfStock ? 'Stok habis' : 'Tambah ke Keranjang'}
               >
                 {isJustAdded ? (
@@ -318,9 +315,9 @@ export default function ProductCard({ product, index = 0, sortMode }: ProductCar
       </div>
 
       {/* ── Row 2: Title ── */}
-      <div className="px-1 mb-1 flex items-start">
+      <div className="px-2 mb-1 flex items-start">
         <Link href={`/catalog/${product.slug}`} className="w-full">
-          <h3 
+          <h3
             className="font-bold font-ecommerce text-surface-ink group-hover:text-surface-sub transition-colors duration-200 line-clamp-2 leading-tight"
             style={{ fontSize: 'clamp(0.875rem, 5cqi, 1.125rem)' }}
           >
@@ -330,14 +327,14 @@ export default function ProductCard({ product, index = 0, sortMode }: ProductCar
       </div>
 
       {/* ── Row 3: Rating ── */}
-      <div className="px-1 mb-1.5 flex items-center">
+      <div className="px-2 mb-1.5 flex items-center">
         <StarRow rating={sales.rating} reviewCount={sales.reviewCount} />
       </div>
 
       {/* ── Row 4: Price & Actions ── */}
-      <div className="px-1 flex flex-col justify-end gap-1.5 mt-auto">
+      <div className="px-2 pb-2 flex flex-col justify-end gap-1.5 mt-auto">
         <div className="flex flex-col items-start gap-1">
-          <p 
+          <p
             className="font-black text-surface-ink tracking-tight"
             style={{ fontSize: 'clamp(1rem, 6cqi, 1.25rem)' }}
           >
@@ -352,13 +349,12 @@ export default function ProductCard({ product, index = 0, sortMode }: ProductCar
             onClick={handleAddToCart}
             disabled={outOfStock}
             aria-label={outOfStock ? 'Stok habis' : 'Tambah ke keranjang'}
-            className={`w-8 h-8 shrink-0 flex items-center justify-center rounded-lg border transition-all duration-200 active:scale-95 ${
-              isJustAdded
+            className={`w-8 h-8 shrink-0 flex items-center justify-center rounded-lg border transition-all duration-200 active:scale-95 ${isJustAdded
                 ? 'border-green-500 bg-green-50 text-green-600'
                 : outOfStock
-                ? 'border-surface-muted bg-surface-raised text-surface-sub cursor-not-allowed opacity-50'
-                : 'border-surface-border bg-white text-surface-ink hover:border-surface-ink'
-            }`}
+                  ? 'border-surface-muted bg-surface-raised text-surface-sub cursor-not-allowed opacity-50'
+                  : 'border-surface-border bg-white text-surface-ink hover:border-surface-ink'
+              }`}
           >
             {isJustAdded ? (
               <Check className="w-3.5 h-3.5 stroke-[2.5]" />

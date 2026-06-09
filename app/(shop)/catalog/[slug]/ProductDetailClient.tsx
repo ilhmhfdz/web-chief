@@ -183,23 +183,23 @@ function AIRecommendationPanel({ product }: { product: Product }) {
   };
 
   return (
-    <div className="glass-card overflow-hidden">
+    <div className="bg-gradient-to-br from-[#00AA5B]/10 to-transparent border border-[#00AA5B]/20 rounded-2xl overflow-hidden shadow-sm">
       {/* Header toggle */}
       <button
         onClick={() => setIsOpen(o => !o)}
-        className="w-full flex items-center justify-between p-5 text-left hover:bg-surface-raised transition-colors"
+        className="w-full flex items-center justify-between p-5 text-left hover:bg-[#00AA5B]/5 transition-colors"
       >
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-surface-ink rounded flex items-center justify-center shrink-0">
-            <Sparkles className="w-4 h-4 text-white" />
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 bg-gradient-to-br from-[#00AA5B] to-[#008f4c] rounded-xl flex items-center justify-center shrink-0 shadow-md shadow-[#00AA5B]/30">
+            <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className="font-semibold text-surface-ink text-sm">AI Hair Match</p>
-            <p className="text-xs text-surface-sub">Cek apakah produk ini cocok untuk rambut Anda</p>
+            <p className="font-bold text-surface-ink text-[15px]">AI Hair Match</p>
+            <p className="text-xs text-surface-sub mt-0.5">Cek kecocokan produk dengan rambut Anda</p>
           </div>
         </div>
         <ChevronRight
-          className={`w-4 h-4 text-surface-sub transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`}
+          className={`w-5 h-5 text-surface-sub transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`}
         />
       </button>
 
@@ -226,9 +226,9 @@ function AIRecommendationPanel({ product }: { product: Product }) {
                         key={opt.value}
                         type="button"
                         onClick={() => toggleHairType(opt.value)}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-full border text-xs font-medium transition-all duration-200 active:scale-95 ${isSelected
-                          ? 'bg-surface-ink text-white border-surface-ink shadow-md'
-                          : 'bg-white/60 text-surface-sub border-surface-muted hover:border-surface-ink hover:bg-white'
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-full border text-xs font-bold transition-all duration-200 active:scale-95 ${isSelected
+                          ? 'bg-[#00AA5B] text-white border-[#00AA5B] shadow-md shadow-[#00AA5B]/20'
+                          : 'bg-white text-surface-sub border-surface-muted hover:border-surface-ink hover:text-surface-ink shadow-sm'
                           }`}
                       >
                         {isSelected && <CheckCircle className="w-3.5 h-3.5" />}
@@ -265,7 +265,7 @@ function AIRecommendationPanel({ product }: { product: Product }) {
               <button
                 onClick={handleAsk}
                 disabled={isLoading}
-                className="btn-primary w-full"
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold bg-[#00AA5B] hover:bg-[#008f4c] text-white text-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-50 shadow-md shadow-[#00AA5B]/20"
               >
                 {isLoading ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Menganalisis...</>
@@ -627,7 +627,7 @@ export default function ProductDetailClient({ product, related }: Props) {
           <div className="lg:sticky lg:top-24">
             {/* Main Image — full-bleed mobile, card desktop */}
             <div
-              className="relative aspect-square w-full bg-surface-raised cursor-zoom-in overflow-hidden lg:rounded-2xl lg:shadow-sm"
+              className="relative aspect-square w-full bg-surface-raised cursor-zoom-in overflow-hidden lg:rounded-2xl lg:shadow-md transition-shadow hover:shadow-lg"
               onClick={() => setIsLightboxOpen(true)}
             >
               {!imgError ? (
@@ -662,12 +662,12 @@ export default function ProductDetailClient({ product, related }: Props) {
 
             {/* Thumbnails */}
             {allImages.length > 1 && (
-              <div className="flex gap-2 px-4 lg:px-0 pt-3 overflow-x-auto scrollbar-hide">
+              <div className="flex gap-3 px-4 lg:px-0 pt-4 overflow-x-auto scrollbar-hide">
                 {allImages.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setSelectedImg(idx)}
-                    className={`relative w-16 h-16 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${selectedImg === idx ? 'border-surface-ink' : 'border-transparent opacity-50 hover:opacity-80'}`}
+                    className={`relative w-16 h-16 rounded-xl overflow-hidden shrink-0 transition-all duration-200 ${selectedImg === idx ? 'ring-2 ring-[#00AA5B] ring-offset-2' : 'opacity-60 hover:opacity-100 hover:shadow-sm'}`}
                   >
                     <Image src={img} alt={`Thumbnail ${idx}`} fill className="object-cover" />
                   </button>
@@ -711,25 +711,25 @@ export default function ProductDetailClient({ product, related }: Props) {
             </div>
 
             {/* Price Box */}
-            <div className="bg-surface-raised border border-surface-muted/50 p-4 rounded-xl">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl lg:text-3xl font-bold text-surface-ink font-rubik">{formatPrice(product.price)}</span>
-                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${outOfStock ? 'bg-red-50 text-red-600 border-red-200' : 'bg-green-50 text-green-700 border-green-200'}`}>
+            <div className="py-2">
+              <div className="flex items-end gap-3">
+                <span className="text-3xl lg:text-4xl font-black text-surface-ink tracking-tight font-rubik">{formatPrice(product.price)}</span>
+                <span className={`text-xs font-bold px-2.5 py-1 mb-1.5 rounded-full border ${outOfStock ? 'bg-red-50 text-red-600 border-red-200' : 'bg-[#00AA5B]/10 text-[#00AA5B] border-[#00AA5B]/20'}`}>
                   {outOfStock ? 'Stok Habis' : `${product.stock} tersedia`}
                 </span>
               </div>
             </div>
 
             {/* Trust Badges */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-3">
               {[
-                { icon: <Truck className="w-5 h-5 text-green-600" />, label: 'Garansi Tiba Besok', bg: 'bg-green-50' },
-                { icon: <ShieldCheck className="w-5 h-5 text-blue-600" />, label: '15 Hari Return', bg: 'bg-blue-50' },
-                { icon: <CheckCircle className="w-5 h-5 text-purple-600" />, label: '100% Original', bg: 'bg-purple-50' },
+                { icon: <Truck className="w-5 h-5 text-[#00AA5B]" />, label: 'Garansi Tiba Besok', bg: 'bg-[#00AA5B]/5', border: 'border-[#00AA5B]/10' },
+                { icon: <ShieldCheck className="w-5 h-5 text-blue-600" />, label: '15 Hari Return', bg: 'bg-blue-50/50', border: 'border-blue-100/50' },
+                { icon: <CheckCircle className="w-5 h-5 text-purple-600" />, label: '100% Original', bg: 'bg-purple-50/50', border: 'border-purple-100/50' },
               ].map((badge, i) => (
-                <div key={i} className={`flex flex-col items-center gap-1.5 ${badge.bg} rounded-xl p-3 text-center border border-surface-muted/40`}>
+                <div key={i} className={`flex flex-col items-center gap-2 ${badge.bg} rounded-2xl p-3.5 text-center border ${badge.border} transition-colors hover:bg-white hover:shadow-sm`}>
                   {badge.icon}
-                  <span className="text-[10px] font-semibold text-surface-sub leading-tight">{badge.label}</span>
+                  <span className="text-[10px] font-bold text-surface-sub leading-tight">{badge.label}</span>
                 </div>
               ))}
             </div>
@@ -739,7 +739,7 @@ export default function ProductDetailClient({ product, related }: Props) {
               <div className="flex border-b border-surface-muted mb-6">
                 <button
                   onClick={() => setActiveTab('detail')}
-                  className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'detail'
+                  className={`flex-1 py-3 text-sm font-bold border-b-[3px] transition-all duration-200 ${activeTab === 'detail'
                       ? 'border-[#00AA5B] text-[#00AA5B]'
                       : 'border-transparent text-surface-sub hover:text-surface-ink'
                     }`}
@@ -748,7 +748,7 @@ export default function ProductDetailClient({ product, related }: Props) {
                 </button>
                 <button
                   onClick={() => setActiveTab('spesifikasi')}
-                  className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'spesifikasi'
+                  className={`flex-1 py-3 text-sm font-bold border-b-[3px] transition-all duration-200 ${activeTab === 'spesifikasi'
                       ? 'border-[#00AA5B] text-[#00AA5B]'
                       : 'border-transparent text-surface-sub hover:text-surface-ink'
                     }`}
@@ -757,7 +757,7 @@ export default function ProductDetailClient({ product, related }: Props) {
                 </button>
                 <button
                   onClick={() => setActiveTab('info')}
-                  className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'info'
+                  className={`flex-1 py-3 text-sm font-bold border-b-[3px] transition-all duration-200 ${activeTab === 'info'
                       ? 'border-[#00AA5B] text-[#00AA5B]'
                       : 'border-transparent text-surface-sub hover:text-surface-ink'
                     }`}
@@ -811,46 +811,48 @@ export default function ProductDetailClient({ product, related }: Props) {
                 )}
 
                 {activeTab === 'spesifikasi' && (
-                  <div className="animate-fade-in text-sm text-surface-sub space-y-4">
-                    <div className="grid grid-cols-3 border-b border-surface-muted pb-3">
-                      <span className="font-semibold">Kategori</span>
-                      <span className="col-span-2 text-surface-ink">{categoryLabel}</span>
-                    </div>
-                    <div className="grid grid-cols-3 border-b border-surface-muted pb-3">
-                      <span className="font-semibold">Stok</span>
-                      <span className="col-span-2 text-surface-ink">{product.stock} tersisa</span>
-                    </div>
-                    <div className="grid grid-cols-3 border-b border-surface-muted pb-3">
-                      <span className="font-semibold">Dikirim Dari</span>
-                      <span className="col-span-2 text-surface-ink">Jakarta Selatan</span>
-                    </div>
-                    <div className="grid grid-cols-3 border-b border-surface-muted pb-3">
-                      <span className="font-semibold">Kondisi</span>
-                      <span className="col-span-2 text-surface-ink">Baru</span>
-                    </div>
-                    <div className="grid grid-cols-3 border-b border-surface-muted pb-3">
-                      <span className="font-semibold">Merek</span>
-                      <span className="col-span-2 text-surface-ink">Chief Company</span>
+                  <div className="animate-fade-in text-sm">
+                    <div className="flex flex-col border-y border-surface-muted/50">
+                      <div className="grid grid-cols-3 py-3.5 border-b border-surface-muted/30">
+                        <span className="font-semibold text-surface-sub">Kategori</span>
+                        <span className="col-span-2 font-bold text-[#00AA5B] hover:underline cursor-pointer">{categoryLabel}</span>
+                      </div>
+                      <div className="grid grid-cols-3 py-3.5 border-b border-surface-muted/30">
+                        <span className="font-semibold text-surface-sub">Stok</span>
+                        <span className="col-span-2 text-surface-ink font-medium">{product.stock} tersisa</span>
+                      </div>
+                      <div className="grid grid-cols-3 py-3.5 border-b border-surface-muted/30">
+                        <span className="font-semibold text-surface-sub">Dikirim Dari</span>
+                        <span className="col-span-2 text-surface-ink font-medium">Jakarta Selatan</span>
+                      </div>
+                      <div className="grid grid-cols-3 py-3.5 border-b border-surface-muted/30">
+                        <span className="font-semibold text-surface-sub">Kondisi</span>
+                        <span className="col-span-2 text-surface-ink font-medium">Baru</span>
+                      </div>
+                      <div className="grid grid-cols-3 py-3.5">
+                        <span className="font-semibold text-surface-sub">Merek</span>
+                        <span className="col-span-2 text-surface-ink font-medium">Chief Company</span>
+                      </div>
                     </div>
                   </div>
                 )}
 
                 {activeTab === 'info' && (
                   <div className="animate-fade-in text-sm text-surface-sub space-y-6">
-                    <div>
+                    <div className="bg-surface-raised p-4 rounded-xl">
                       <h4 className="font-bold text-surface-ink mb-2">Kebijakan Pengembalian</h4>
-                      <p className="leading-relaxed">Setiap Komplain Wajib Ada Video Unboxing (Videonya Harus Full Dari Paket Dibuka Sampai Tes Produk)<br />Tanpa Video Unboxing, Komplain Tidak Bisa Diklaim.</p>
+                      <p className="leading-relaxed text-[13px]">Setiap Komplain Wajib Ada Video Unboxing (Videonya Harus Full Dari Paket Dibuka Sampai Tes Produk)<br />Tanpa Video Unboxing, Komplain Tidak Bisa Diklaim.</p>
                     </div>
-                    <div>
+                    <div className="bg-surface-raised p-4 rounded-xl">
                       <h4 className="font-bold text-surface-ink mb-2">Jadwal Pengiriman</h4>
-                      <p className="leading-relaxed">Senin - Jumat: Pesanan sebelum jam 15.00 dikirim hari yang sama.<br />Sabtu - Minggu & Libur Nasional: Tidak ada pengiriman.</p>
+                      <p className="leading-relaxed text-[13px]">Senin - Jumat: Pesanan sebelum jam 15.00 dikirim hari yang sama.<br />Sabtu - Minggu & Libur Nasional: Tidak ada pengiriman.</p>
                     </div>
-                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
                       <h4 className="font-bold text-yellow-800 mb-1 flex items-center gap-2">
                         <AlertCircle className="w-4 h-4" /> INFO Penting
                       </h4>
-                      <p className="text-yellow-700 text-xs leading-relaxed">
-                        *NOTE :.
+                      <p className="text-yellow-700 text-[13px] leading-relaxed">
+                        *Pastikan alamat pengiriman sudah benar dan nomor telepon aktif.
                       </p>
                     </div>
                   </div>
@@ -882,7 +884,7 @@ export default function ProductDetailClient({ product, related }: Props) {
 
           {/* ══ RIGHT: Action Column (Desktop Only) ══ */}
           <div className="hidden lg:block lg:sticky lg:top-24 h-fit">
-            <div className="border border-white/50 rounded-2xl p-6 bg-white/60 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)]">
+            <div className="border border-surface-muted/60 rounded-3xl p-6 bg-white shadow-lg shadow-surface-ink/5">
               <h3 className="font-bold text-surface-ink text-base mb-4">Atur jumlah dan catatan</h3>
 
               <div className="flex items-center gap-3 mb-5">
@@ -920,7 +922,7 @@ export default function ProductDetailClient({ product, related }: Props) {
                 <button
                   onClick={handleBuyNow}
                   disabled={outOfStock}
-                  className="flex items-center justify-center gap-2 py-3 rounded-xl font-bold bg-yellow-700 hover:bg-yellow-800 text-white text-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-yellow-700/20"
+                  className="flex items-center justify-center gap-2 py-3 rounded-xl font-bold bg-[#00AA5B] hover:bg-[#008f4c] text-white text-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-50 shadow-md shadow-[#00AA5B]/20"
                 >
                   {outOfStock ? 'Stok Habis' : 'Beli Langsung'}
                 </button>
@@ -967,20 +969,19 @@ export default function ProductDetailClient({ product, related }: Props) {
         initial={{ y: 80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 280, damping: 28, delay: 0.3 }}
-        className="lg:hidden fixed left-0 right-0 z-40 bg-white border-t border-surface-muted shadow-[0_-4px_20px_rgba(0,0,0,0.08)]
-          bottom-0"
+        className="lg:hidden fixed left-0 right-0 z-40 bg-white border-t border-surface-muted shadow-[0_-8px_30px_rgba(0,0,0,0.08)] bottom-0"
       >
-        <div className="flex items-center gap-2 px-3 py-2.5"
-          style={{ paddingBottom: 'max(10px, env(safe-area-inset-bottom))' }}
+        <div className="flex items-center gap-3 px-4 py-3"
+          style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
         >
-          <div className="w-10 h-10 flex-shrink-0">
+          <div className="w-11 h-11 flex-shrink-0">
             <ProductChatButton productName={product.name} iconOnly />
           </div>
 
           <button
             onClick={handleBuyNow}
             disabled={outOfStock}
-            className="flex-1 h-10 flex items-center justify-center font-bold bg-yellow-700 hover:bg-yellow-800 text-white rounded-lg text-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-50 shadow-sm shadow-yellow-700/20"
+            className="flex-1 h-11 flex items-center justify-center font-bold bg-[#00AA5B] hover:bg-[#008f4c] text-white rounded-xl text-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-50 shadow-md shadow-[#00AA5B]/20"
           >
             {outOfStock ? 'Stok Habis' : 'Beli Langsung'}
           </button>
@@ -988,7 +989,7 @@ export default function ProductDetailClient({ product, related }: Props) {
           {!outOfStock && (
             <button
               onClick={handleAddToCart}
-              className={`flex-1 h-10 flex items-center justify-center font-bold rounded-lg text-sm transition-all active:scale-95 border ${isJustAdded ? 'bg-green-50 text-green-700 border-green-200' : 'bg-white text-surface-ink border-surface-ink hover:bg-surface-raised'}`}
+              className={`flex-1 h-11 flex items-center justify-center font-bold rounded-xl text-sm transition-all duration-200 active:scale-95 border ${isJustAdded ? 'bg-green-50 text-green-700 border-green-200 shadow-sm' : 'bg-white text-[#00AA5B] border-[#00AA5B] hover:bg-[#00AA5B]/5 shadow-sm'}`}
             >
               {isJustAdded ? '+ Ditambahkan' : '+ Keranjang'}
             </button>

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Mail, Lock, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { refreshAuth } from '@/hooks/useAuth';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 // Inner component that uses useSearchParams
 function LoginForm() {
@@ -17,8 +18,23 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const validateForm = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Format email tidak valid.');
+      return false;
+    }
+    if (password.length < 8) {
+      setError('Kata sandi harus minimal 8 karakter.');
+      return false;
+    }
+    return true;
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
+    
     setIsLoading(true);
     setError('');
 
@@ -32,7 +48,7 @@ function LoginForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to login');
+        throw new Error(data.error || 'Terjadi kesalahan pada server. Silakan coba lagi.');
       }
 
       // Trigger navbar re-fetch SEBELUM navigasi agar langsung terupdate
@@ -51,7 +67,35 @@ function LoginForm() {
         router.push('/');
       }
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Gagal terhubung ke server.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: credentialResponse.credential }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Gagal login dengan Google');
+      
+      refreshAuth();
+      const callbackUrl = searchParams.get('callbackUrl');
+      if (callbackUrl && callbackUrl.startsWith('/')) {
+        router.push(callbackUrl);
+      } else if (data.user?.role === 'admin') {
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Terjadi kesalahan saat login Google.');
     } finally {
       setIsLoading(false);
     }
@@ -133,6 +177,29 @@ function LoginForm() {
             </>
           )}
         </button>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-surface-border"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-surface-base text-surface-sub">Atau lanjutkan dengan</span>
+          </div>
+        </div>
+
+        <div className="flex justify-center">
+          {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? (
+            <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
+               <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setError('Login Google gagal.')}
+                  useOneTap
+               />
+            </GoogleOAuthProvider>
+          ) : (
+            <p className="text-xs text-red-500">Google Client ID belum dikonfigurasi</p>
+          )}
+        </div>
       </form>
 
       <div className="mt-8 text-center text-sm text-surface-sub">

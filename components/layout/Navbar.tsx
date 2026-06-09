@@ -131,7 +131,7 @@ function UserDropdown() {
             <div className="px-4 py-2.5 border-b border-surface-muted mb-1">
               <p className="text-xs text-surface-sub">Login sebagai</p>
               <p className="text-sm font-semibold text-surface-ink truncate">
-                {user.role === 'admin' ? 'Administrator' : 'Pelanggan'}
+                {user.role === 'admin' ? 'Administrator' : (user.name || 'Pelanggan')}
               </p>
               <p className="text-[11px] text-surface-border truncate mt-0.5">
                 ID: {user.userId.slice(-8).toUpperCase()}

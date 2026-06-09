@@ -215,11 +215,10 @@ export default function MobileFilterDrawer({ initialParams }: MobileFilterDrawer
       {/* ── Trigger Button ── */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-bold border transition-all duration-200 ${
-          activeFilterCount > 0
+        className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-bold border transition-all duration-200 ${activeFilterCount > 0
             ? 'bg-surface-ink text-white border-surface-ink'
             : 'bg-white text-surface-sub border-surface-muted/60 hover:border-surface-ink hover:text-surface-ink'
-        }`}
+          }`}
         aria-label="Buka filter"
       >
         <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -312,11 +311,10 @@ export default function MobileFilterDrawer({ initialParams }: MobileFilterDrawer
                         <button
                           key={cat.value}
                           onClick={() => handleCategoryChange(cat.value)}
-                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 text-left border ${
-                            isActive
+                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 text-left border ${isActive
                               ? 'bg-surface-ink text-white border-surface-ink'
                               : 'bg-surface-raised text-surface-sub border-transparent hover:border-surface-muted hover:text-surface-ink'
-                          }`}
+                            }`}
                         >
                           <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-surface-border'}`} />
                           <span className="truncate">{cat.label}</span>
@@ -350,11 +348,10 @@ export default function MobileFilterDrawer({ initialParams }: MobileFilterDrawer
                         <button
                           key={opt.value}
                           onClick={() => handleSortChange(opt.value as any)}
-                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 border text-left ${
-                            isActive
+                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 border text-left ${isActive
                               ? 'bg-surface-ink text-white border-surface-ink'
                               : 'bg-surface-raised text-surface-sub border-transparent hover:border-surface-muted hover:text-surface-ink'
-                          }`}
+                            }`}
                         >
                           <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-surface-border'}`} />
                           <span className="truncate">{opt.label}</span>
@@ -378,11 +375,10 @@ export default function MobileFilterDrawer({ initialParams }: MobileFilterDrawer
                         <button
                           key={opt.value}
                           onClick={() => handleRatingChange(opt.value)}
-                          className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-lg text-sm transition-all duration-150 border ${
-                            isActive
+                          className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-lg text-sm transition-all duration-150 border ${isActive
                               ? 'border-surface-ink bg-surface-raised font-semibold text-surface-ink'
                               : 'border-surface-muted text-surface-sub hover:bg-surface-raised hover:text-surface-ink'
-                          }`}
+                            }`}
                         >
                           <StarRating rating={opt.value} />
                           <span className="text-xs">{opt.label}</span>

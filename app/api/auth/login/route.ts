@@ -9,8 +9,8 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { email, password } = body;
 
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
+    if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
+      return NextResponse.json({ error: 'Email and password are required and must be valid text' }, { status: 400 });
     }
 
     const user = await User.findOne({ email }).select('+password');
@@ -40,6 +40,7 @@ export async function POST(req: Request) {
 
     return response;
   } catch (error: any) {
-    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
+    console.error('Login error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

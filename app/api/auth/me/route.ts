@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { verifyJWT } from '@/lib/auth/jwt';
+import dbConnect from '@/lib/db/mongoose';
+import User from '@/lib/db/models/User';
 
 /**
  * GET /api/auth/me
@@ -19,10 +21,13 @@ export async function GET(req: Request) {
 
   try {
     const payload = await verifyJWT(token);
+    await dbConnect();
+    const userDoc = await User.findById(payload.userId).select('name');
     return NextResponse.json({
       user: {
         userId: payload.userId,
         role: payload.role,
+        name: userDoc?.name || '',
       },
     });
   } catch {

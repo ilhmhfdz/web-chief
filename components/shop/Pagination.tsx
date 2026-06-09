@@ -59,11 +59,10 @@ export default function Pagination({ currentPage, totalPages, currentParams }: P
             onClick={() => goToPage(page)}
             aria-current={page === currentPage ? 'page' : undefined}
             whileTap={{ scale: 0.92 }}
-            className={`w-9 h-9 rounded-xl text-sm font-bold transition-all duration-200 border ${
-              page === currentPage
+            className={`w-9 h-9 rounded-xl text-sm font-bold transition-all duration-200 border ${page === currentPage
                 ? 'bg-surface-ink text-white border-surface-ink shadow-md shadow-surface-ink/20'
                 : 'text-surface-sub bg-white border-surface-muted/70 hover:text-surface-ink hover:border-surface-border hover:shadow-sm'
-            }`}
+              }`}
           >
             {page}
           </motion.button>

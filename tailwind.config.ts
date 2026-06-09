@@ -40,7 +40,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans:    ['var(--font-inter)', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans:    ['var(--font-nunito-sans)', 'Nunito Sans', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
         display: ['var(--font-playfair)', '"Playfair Display"', 'Georgia', 'serif'],
         mono:    ['JetBrains Mono', 'Fira Code', 'monospace'],
         ecommerce: ['var(--font-plus-jakarta)', 'sans-serif'],

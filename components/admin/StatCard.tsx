@@ -1,14 +1,18 @@
-import type { LucideIcon } from 'lucide-react';
-import { TrendingUp } from 'lucide-react';
+"use client";
+
+import type { ReactNode } from 'react';
+import { motion } from 'framer-motion';
 
 interface StatCardProps {
   label: string;
   value: string | number;
-  icon: LucideIcon;
+  icon: ReactNode;
   /** Optional: subtitle text below value */
   sub?: string;
   /** Optional: color accent variant */
   variant?: 'default' | 'brand' | 'blue' | 'green' | 'purple';
+  /** Optional: delay for stagger animation */
+  delay?: number;
 }
 
 const VARIANT_STYLES: Record<NonNullable<StatCardProps['variant']>, string> = {
@@ -22,20 +26,26 @@ const VARIANT_STYLES: Record<NonNullable<StatCardProps['variant']>, string> = {
 export default function StatCard({
   label,
   value,
-  icon: Icon,
+  icon,
   sub,
   variant = 'default',
+  delay = 0,
 }: StatCardProps) {
   return (
-    <div className="glass-card p-5 flex items-start justify-between gap-4">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: delay, ease: 'easeOut' }}
+      className="glass-card p-5 flex items-start justify-between gap-4 card-hover hover:-translate-y-1 transition-transform"
+    >
       <div className="flex-1 min-w-0">
         <p className="label-upper mb-1">{label}</p>
-        <p className="text-2xl font-bold text-surface-ink truncate">{value}</p>
-        {sub && <p className="text-[11px] text-surface-sub font-medium mt-1">{sub}</p>}
+        <p className="text-3xl font-bold text-surface-ink truncate tracking-tight">{value}</p>
+        {sub && <p className="text-xs text-surface-sub font-medium mt-1.5">{sub}</p>}
       </div>
-      <div className={`w-10 h-10 rounded flex items-center justify-center shrink-0 ${VARIANT_STYLES[variant]}`}>
-        <Icon className="w-5 h-5" />
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${VARIANT_STYLES[variant]}`}>
+        {icon}
       </div>
-    </div>
+    </motion.div>
   );
 }

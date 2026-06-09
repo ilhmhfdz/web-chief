@@ -2,6 +2,7 @@ import { openai } from './openai';
 import { KnowledgeBase } from '@/lib/db/models/KnowledgeBase';
 import { generateEmbedding } from './embeddings';
 import dbConnect from '@/lib/db/mongoose';
+import { Persona } from '@/lib/db/models/Persona';
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
 export interface Message {
@@ -68,13 +69,10 @@ export async function generateResponse(userMessage: string, conversationHistory:
   // 1. Retrieve relevant context from MongoDB Atlas
   const context = await retrieveContext(userMessage);
 
-  // 2. Fetch current system prompt
-  // In a full implementation, you would query this from a Persona collection or settings table.
-  // Using a fallback default persona here:
+  // 2. Fetch current system prompt from Persona collection
+  const activePersona = await Persona.findOne({ isActive: true }).lean();
   const defaultPersona = "Anda adalah AI Assistant untuk Chief Supplies, platform e-commerce produk grooming pria premium.";
-  let persona = defaultPersona;
-  
-  // (Optional: fetch from DB here if Persona model is created)
+  const persona = activePersona ? activePersona.systemPrompt : defaultPersona;
   
   const systemPrompt = buildSystemPrompt(persona, context);
 

@@ -9,8 +9,8 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { name, email, password } = body;
 
-    if (!name || !email || !password) {
-      return NextResponse.json({ error: 'Name, email, and password are required' }, { status: 400 });
+    if (!name || !email || !password || typeof name !== 'string' || typeof email !== 'string' || typeof password !== 'string') {
+      return NextResponse.json({ error: 'Name, email, and password are required and must be valid text' }, { status: 400 });
     }
 
     const existingUser = await User.findOne({ email });
@@ -22,6 +22,7 @@ export async function POST(req: Request) {
       name,
       email,
       password,
+      authProvider: 'local',
     });
 
     const token = await signJWT({ userId: (user._id as unknown) as string, role: user.role });
@@ -41,6 +42,7 @@ export async function POST(req: Request) {
 
     return response;
   } catch (error: any) {
-    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
+    console.error('Register error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

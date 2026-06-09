@@ -1,30 +1,11 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { ShoppingCart, ExternalLink } from 'lucide-react';
-import { formatPrice } from '@/lib/utils/format';
 import dbConnect from '@/lib/db/mongoose';
 import { Order } from '@/lib/db/models/Order';
+import OrdersTableClient, { OrderRowDetail } from '@/components/admin/OrdersTableClient';
 
 export const metadata: Metadata = { title: 'Pesanan' };
 
-interface OrderRow {
-  _id: string;
-  status: string;
-  total_price: number;
-  createdAt: string;
-  items: { name: string; quantity: number }[];
-}
-
-const STATUS_STYLES: Record<string, string> = {
-  pending:    'badge-default text-amber-700 bg-amber-50 border-amber-200',
-  paid:       'badge-default text-blue-700 bg-blue-50 border-blue-200',
-  processing: 'badge-default text-purple-700 bg-purple-50 border-purple-200',
-  shipped:    'badge-default text-cyan-700 bg-cyan-50 border-cyan-200',
-  delivered:  'badge-default text-green-700 bg-green-50 border-green-200',
-  cancelled:  'badge-default text-red-700 bg-red-50 border-red-200',
-};
-
-async function fetchOrders(): Promise<OrderRow[]> {
+async function fetchOrders(): Promise<OrderRowDetail[]> {
   try {
     await dbConnect();
     const orders = await Order.find()
@@ -40,7 +21,18 @@ async function fetchOrders(): Promise<OrderRow[]> {
       items: (o.items ?? []).map((i: any) => ({
         name: i.name,
         quantity: i.quantity,
+        price: i.price || 0,
       })),
+      shipping_address: o.shipping_address || {
+        recipient_name: 'Unknown',
+        phone: '',
+        address: '',
+        city: '',
+        province: '',
+        postal_code: '',
+      },
+      subtotal: o.subtotal || 0,
+      shipping_cost: o.shipping_cost || 0,
     }));
   } catch {
     return [];
@@ -51,72 +43,13 @@ export default async function AdminOrdersPage() {
   const orders = await fetchOrders();
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto pb-10">
       <div>
-        <h1 className="heading-lg">Pesanan</h1>
-        <p className="text-surface-sub text-sm mt-1">{orders.length} pesanan total</p>
+        <h1 className="heading-lg tracking-tight">Manajemen Pesanan</h1>
+        <p className="text-surface-sub text-sm mt-1">{orders.length} pesanan bulan ini</p>
       </div>
 
-      {orders.length === 0 ? (
-        <div className="glass-card p-12 text-center space-y-3">
-          <ShoppingCart className="w-10 h-10 text-surface-border mx-auto" />
-          <p className="text-surface-sub font-medium">Belum ada pesanan masuk.</p>
-        </div>
-      ) : (
-        <div className="glass-card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm table-clean">
-              <thead>
-                <tr>
-                  <th>Order ID</th>
-                  <th>Items</th>
-                  <th className="text-center">Status</th>
-                  <th className="text-right">Total</th>
-                  <th className="text-right">Tanggal</th>
-                  <th className="text-center">Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((order) => (
-                  <tr
-                    key={order._id}
-                    className="cursor-pointer hover:bg-surface-raised transition-colors"
-                  >
-                    <td className="font-mono text-surface-ink text-xs font-semibold uppercase">
-                      #{order._id.slice(-8)}
-                    </td>
-                    <td className="text-surface-sub text-xs max-w-[200px] truncate leading-relaxed">
-                      {order.items?.map((i) => `${i.name} ×${i.quantity}`).join(', ') ?? '—'}
-                    </td>
-                    <td className="text-center">
-                      <span className={`capitalize ${STATUS_STYLES[order.status] ?? STATUS_STYLES.pending}`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="text-right text-surface-ink font-bold">
-                      {formatPrice(order.total_price)}
-                    </td>
-                    <td className="text-right text-surface-sub text-xs font-medium">
-                      {new Date(order.createdAt).toLocaleDateString('id-ID', {
-                        day: 'numeric', month: 'short', year: 'numeric',
-                      })}
-                    </td>
-                    <td className="text-center">
-                      <Link
-                        href={`/admin/orders/${order._id}`}
-                        className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-lg border border-surface-muted text-surface-sub hover:border-surface-ink hover:text-surface-ink transition-colors"
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                        Detail
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      <OrdersTableClient initialOrders={orders} />
     </div>
   );
 }
