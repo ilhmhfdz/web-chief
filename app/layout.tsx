@@ -4,7 +4,6 @@ import './globals.css';
 import React, { Suspense } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import WhatsAppFloatingButton from '@/components/layout/WhatsAppFloatingButton';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import { CartProvider } from '@/contexts/CartContext';
 import { Toaster } from 'sonner';
@@ -99,9 +98,6 @@ export default function RootLayout({
 
           {/* Chat Widget */}
           <ChatWidget />
-
-          {/* WhatsApp FAB — component handles its own fixed positioning */}
-          <WhatsAppFloatingButton />
 
           {/* IMP-012: Mobile bottom navigation */}
           <MobileBottomNav />
