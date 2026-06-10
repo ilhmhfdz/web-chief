@@ -34,7 +34,7 @@ export default function UserChat() {
 
   const fetchConversations = async () => {
     try {
-      const data = await apiFetch('/api/chat') as any;
+      const data = await apiFetch('/api/chat', { cache: 'no-store' }) as any;
       setConversations(data.conversations || []);
       if (data.conversations?.length > 0 && !activeConvId) {
         setActiveConvId(data.conversations[0]._id);
@@ -51,7 +51,7 @@ export default function UserChat() {
 
     const fetchMessages = async () => {
       try {
-        const data = await apiFetch(`/api/chat/${activeConvId}`) as any;
+        const data = await apiFetch(`/api/chat/${activeConvId}`, { cache: 'no-store' }) as any;
         setMessages(data.conversation?.messages || []);
       } catch (err) {
         console.error(err);

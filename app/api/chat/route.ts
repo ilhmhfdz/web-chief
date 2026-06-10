@@ -5,6 +5,8 @@ import connectDB from '@/lib/db/mongoose';
 import Conversation from '@/lib/db/models/Conversation';
 import User from '@/lib/db/models/User';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
   try {
     const cookieStore = cookies();

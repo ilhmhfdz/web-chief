@@ -36,7 +36,7 @@ export default function FloatingChatWidget() {
     const fetchChat = async () => {
       try {
         if (!conversation) setLoading(true);
-        const data = await apiFetch('/api/chat') as any;
+        const data = await apiFetch('/api/chat', { cache: 'no-store' }) as any;
         if (data.conversations && data.conversations.length > 0) {
           const activeConv = data.conversations[0];
           setConversation(activeConv);

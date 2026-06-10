@@ -43,7 +43,8 @@ export default function AdminChatClient() {
 
   const fetchConversations = async () => {
     try {
-      const data = await apiFetch('/api/chat') as any;
+      setLoading(true);
+      const data = await apiFetch('/api/chat', { cache: 'no-store' }) as any;
       setConversations(data.conversations || []);
       setLoading(false);
     } catch (err) {
@@ -57,7 +58,7 @@ export default function AdminChatClient() {
 
     const fetchMessages = async () => {
       try {
-        const data = await apiFetch(`/api/chat/${activeConvId}`) as any;
+        const data = await apiFetch(`/api/chat/${activeConvId}`, { cache: 'no-store' }) as any;
         setMessages(data.conversation?.messages || []);
       } catch (err) {
         console.error(err);
