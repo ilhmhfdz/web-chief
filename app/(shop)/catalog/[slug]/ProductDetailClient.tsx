@@ -713,7 +713,7 @@ export default function ProductDetailClient({ product, related }: Props) {
             {/* Price Box */}
             <div className="py-2">
               <div className="flex items-end gap-3">
-                <span className="text-3xl lg:text-4xl font-black text-surface-ink tracking-tight font-rubik">{formatPrice(product.price)}</span>
+                <span className="text-3xl lg:text-4xl font-semibold text-surface-ink tracking-tight font-rubik">{formatPrice(product.price)}</span>
                 <span className={`text-xs font-bold px-2.5 py-1 mb-1.5 rounded-full border ${outOfStock ? 'bg-red-50 text-red-600 border-red-200' : 'bg-[#00AA5B]/10 text-[#00AA5B] border-[#00AA5B]/20'}`}>
                   {outOfStock ? 'Stok Habis' : `${product.stock} tersedia`}
                 </span>
@@ -740,8 +740,8 @@ export default function ProductDetailClient({ product, related }: Props) {
                 <button
                   onClick={() => setActiveTab('detail')}
                   className={`flex-1 py-3 text-sm font-bold border-b-[3px] transition-all duration-200 ${activeTab === 'detail'
-                      ? 'border-[#00AA5B] text-[#00AA5B]'
-                      : 'border-transparent text-surface-sub hover:text-surface-ink'
+                    ? 'border-[#00AA5B] text-[#00AA5B]'
+                    : 'border-transparent text-surface-sub hover:text-surface-ink'
                     }`}
                 >
                   Detail Produk
@@ -749,8 +749,8 @@ export default function ProductDetailClient({ product, related }: Props) {
                 <button
                   onClick={() => setActiveTab('spesifikasi')}
                   className={`flex-1 py-3 text-sm font-bold border-b-[3px] transition-all duration-200 ${activeTab === 'spesifikasi'
-                      ? 'border-[#00AA5B] text-[#00AA5B]'
-                      : 'border-transparent text-surface-sub hover:text-surface-ink'
+                    ? 'border-[#00AA5B] text-[#00AA5B]'
+                    : 'border-transparent text-surface-sub hover:text-surface-ink'
                     }`}
                 >
                   Spesifikasi
@@ -758,8 +758,8 @@ export default function ProductDetailClient({ product, related }: Props) {
                 <button
                   onClick={() => setActiveTab('info')}
                   className={`flex-1 py-3 text-sm font-bold border-b-[3px] transition-all duration-200 ${activeTab === 'info'
-                      ? 'border-[#00AA5B] text-[#00AA5B]'
-                      : 'border-transparent text-surface-sub hover:text-surface-ink'
+                    ? 'border-[#00AA5B] text-[#00AA5B]'
+                    : 'border-transparent text-surface-sub hover:text-surface-ink'
                     }`}
                 >
                   Info Penting
