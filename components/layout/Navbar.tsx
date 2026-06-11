@@ -18,9 +18,9 @@ import { useAuth, refreshAuth } from '@/hooks/useAuth';
 import { apiFetch } from '@/lib/utils/apiFetch';
 
 const NAV_LINKS = [
-  { label: 'Services', href: '/services' },
-  { label: 'AI Hairstyle', href: '/ai-recommendation' },
   { label: 'Products', href: '/catalog' },
+  { label: 'Artikel', href: '/articles' },
+  { label: 'AI Hairstyle', href: '/ai-recommendation' },
   { label: 'Booking', href: '/booking' },
 ];
 
