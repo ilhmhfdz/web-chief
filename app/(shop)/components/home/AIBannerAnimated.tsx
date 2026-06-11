@@ -2,100 +2,97 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Sparkles, Star, ArrowRight } from 'lucide-react';
+import { ArrowRight, ScanFace } from 'lucide-react';
 
 export default function AIBannerAnimated() {
-  return (
-    <section className="section-container py-16 lg:py-24">
-      <motion.div 
-        className="bg-surface-ink rounded-3xl px-8 py-12 lg:px-16 lg:py-20 overflow-hidden relative shadow-2xl"
-        initial={{ opacity: 0, y: 40, scale: 0.95 }}
-        whileInView={{ opacity: 1, y: 0, scale: 1 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ type: "spring", stiffness: 60, damping: 20 }}
-      >
-        {/* Background decoration with continuous animation */}
-        <motion.div 
-          animate={{ 
-            rotate: [0, 360],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{ 
-            duration: 20, 
-            repeat: Infinity, 
-            ease: "linear" 
-          }}
-          className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none origin-center" 
-        />
-        <motion.div 
-          animate={{ 
-            rotate: [360, 0],
-            scale: [1, 1.3, 1],
-          }}
-          transition={{ 
-            duration: 25, 
-            repeat: Infinity, 
-            ease: "linear" 
-          }}
-          className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-white/5 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4 pointer-events-none origin-center" 
-        />
+  const elegantTransition = { duration: 1.2, ease: [0.16, 1, 0.3, 1] };
 
-        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-10">
-          <div className="max-w-xl">
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-              className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-4 py-1.5 mb-6 border border-white/10"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-accent-light" />
-              <span className="text-xs font-bold uppercase tracking-wider text-white/90">Powered by AI</span>
-            </motion.div>
-            
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="font-display text-3xl lg:text-5xl font-black text-white leading-[1.1] mb-5 tracking-tight"
-            >
-              Temukan Gaya yang<br />
-              <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-accent-light to-white">Tepat untuk Anda.</span>
-            </motion.h2>
-            
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="text-base lg:text-lg text-white/70 leading-relaxed font-medium"
-            >
-              Unggah foto wajah Anda dan biarkan AI kami menganalisis bentuk wajah,
-              lalu merekomendasikan produk dan gaya rambut yang paling sesuai.
-            </motion.p>
-          </div>
+  return (
+    <section className="py-24 md:py-32 bg-brand-950 relative overflow-hidden">
+      <div className="section-container relative z-10">
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-center">
           
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.6, type: "spring" }}
-            className="shrink-0 flex flex-col sm:flex-row gap-4 w-full lg:w-auto"
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={elegantTransition}
+            className="text-white lg:col-span-5 relative z-20"
           >
-            <Link
-              href="/ai-recommendation"
-              className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-surface-ink font-bold text-sm rounded-xl hover:bg-surface-raised transition-all shadow-lg hover:shadow-xl hover:-translate-y-1"
-            >
-              <Star className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" />
-              Mulai Analisis Gratis
-            </Link>
-            <Link
-              href="/catalog"
-              className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 backdrop-blur-sm text-white font-bold text-sm rounded-xl hover:bg-white/15 transition-all border border-white/20 hover:border-white/40 hover:-translate-y-1"
-            >
-              Lihat Katalog
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <div className="inline-flex items-center gap-3 mb-8">
+              <ScanFace className="w-5 h-5 text-accent" strokeWidth={1.5} />
+              <span className="tracking-[0.2em] uppercase text-xs font-medium text-white/70">
+                Precision Analysis
+              </span>
+            </div>
+            
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-light text-white mb-8 tracking-tight leading-[1.1]">
+              Find Your <br />
+              <span className="font-serif italic text-white/90">Perfect Style.</span>
+            </h2>
+            
+            <p className="text-base text-white/60 mb-12 max-w-md leading-relaxed font-light">
+              Not sure which haircut suits you? Our advanced Face Analyzer maps your facial structure to recommend styles that complement your unique features with refined accuracy.
+            </p>
+            
+            <Link href="/ai-recommendation" className="group inline-flex items-center gap-4 text-sm tracking-[0.1em] uppercase font-medium text-white transition-opacity hover:text-white/80">
+              <span className="border-b border-white/30 pb-1 group-hover:border-white transition-colors">
+                Start Free Analysis
+              </span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-2" strokeWidth={1.5} />
             </Link>
           </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="lg:col-span-7 relative"
+          >
+            {/* Elegant Minimalist Image Frame */}
+            <div className="relative aspect-[4/3] w-full overflow-hidden bg-brand-900 group">
+              <motion.img 
+                initial={{ scale: 1.1 }}
+                whileInView={{ scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
+                src="/uploads/1780911283802-Quiff_Haircut.webp" 
+                alt="Premium Hairstyle Analysis" 
+                className="object-cover w-full h-full opacity-80 mix-blend-luminosity transition-all duration-1000 group-hover:mix-blend-normal group-hover:opacity-100"
+              />
+              
+              {/* Very subtle smooth scanning line */}
+              <div className="absolute inset-0 pointer-events-none overflow-hidden mix-blend-overlay opacity-30">
+                <motion.div 
+                  animate={{ y: ["-10%", "110%"] }}
+                  transition={{ duration: 4, ease: "linear", repeat: Infinity }}
+                  className="w-full h-48 bg-gradient-to-b from-transparent via-white/20 to-transparent"
+                />
+              </div>
+
+              {/* Minimalist Floating Label */}
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute bottom-8 left-8 bg-brand-950/80 backdrop-blur-md px-6 py-4 border border-white/10 flex items-center gap-4"
+              >
+                <div className="relative flex items-center justify-center w-8 h-8">
+                  <div className="absolute inset-0 border border-white/30 rounded-full animate-[spin_4s_linear_infinite]" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                </div>
+                <div>
+                  <p className="text-[9px] text-white/50 uppercase tracking-[0.2em] mb-1">Face Profile</p>
+                  <p className="text-sm font-light text-white tracking-wide">Oval Structure</p>
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
+          
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

@@ -73,6 +73,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" className={`${inter.variable} ${playfair.variable} ${plusJakarta.variable} ${rubik.variable} ${nunitoSans.variable}`}>
+      <head>
+        <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&display=swap" rel="stylesheet" />
+      </head>
       <body className="font-sans antialiased flex flex-col min-h-screen">
         <CartProvider>
           {/* Ambient background glow */}

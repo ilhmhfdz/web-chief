@@ -3,8 +3,7 @@
 // These are plain serializable types used across client/server.
 // Do NOT import Mongoose documents here.
 // ============================================================
-
-export type ProductCategory = 'pomade' | 'shampoo' | 'tools' | 'accessories';
+export type ProductCategory = 'pomade' | 'shampoo' | 'dry-sand' | 'hair-care';
 
 export interface Product {
   _id: string;
@@ -67,9 +66,9 @@ export interface CategoryMeta {
 export const PRODUCT_CATEGORIES: CategoryMeta[] = [
   { value: 'all', label: 'Semua', emoji: '⊞' },
   { value: 'pomade', label: 'Pomade', emoji: '✧' },
-  { value: 'shampoo', label: 'Shampoo', emoji: '◇' },
-  { value: 'tools', label: 'Tools', emoji: '✄' },
-  { value: 'accessories', label: 'Aksesoris', emoji: '✦' },
+  { value: 'shampoo', label: 'Shampo', emoji: '◇' },
+  { value: 'dry-sand', label: 'Dry Sand', emoji: '❄' },
+  { value: 'hair-care', label: 'Hair Care', emoji: '✦' },
 ];
 
 export const SORT_OPTIONS = [

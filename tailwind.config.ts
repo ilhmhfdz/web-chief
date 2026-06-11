@@ -40,12 +40,12 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans:    ['var(--font-nunito-sans)', 'Nunito Sans', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['var(--font-playfair)', '"Playfair Display"', 'Georgia', 'serif'],
+        sans:    ['Satoshi', 'var(--font-nunito-sans)', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Satoshi', 'var(--font-playfair)', 'Georgia', 'serif'],
         mono:    ['JetBrains Mono', 'Fira Code', 'monospace'],
-        ecommerce: ['var(--font-plus-jakarta)', 'sans-serif'],
-        rubik:   ['var(--font-rubik)', 'sans-serif'],
-        nunito:  ['var(--font-nunito-sans)', 'sans-serif'],
+        ecommerce: ['Satoshi', 'var(--font-plus-jakarta)', 'sans-serif'],
+        rubik:   ['Satoshi', 'var(--font-rubik)', 'sans-serif'],
+        nunito:  ['Satoshi', 'var(--font-nunito-sans)', 'sans-serif'],
       },
       borderRadius: {
         'xs': '4px',

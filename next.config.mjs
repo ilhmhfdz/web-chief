@@ -20,6 +20,11 @@ const nextConfig = {
       { protocol: 'https', hostname: 'www.chief-supplies.id' },
       // Next.js placeholder / test images
       { protocol: 'https', hostname: 'placehold.co' },
+      // ── Tokopedia CDN (existing product images) ──
+      // Note: Tokopedia URLs are signed and expire — migrate images to Cloudinary ASAP
+      { protocol: 'https', hostname: '*.tokopedia-static.net' },
+      { protocol: 'https', hostname: '*.tokopediacdn.com' },
+      { protocol: 'https', hostname: 'images.tokopedia.net' },
     ],
   },
 };

@@ -9,7 +9,7 @@ export interface IProduct extends Document {
   description: string;
   price: number;
   stock: number;
-  category: 'pomade' | 'shampoo' | 'tools' | 'accessories';
+  category: 'pomade' | 'shampoo' | 'dry-sand' | 'hair-care';
   image_url: string;
   images?: string[];
   tags: string[];
@@ -48,7 +48,7 @@ const productSchema = new Schema<IProduct>(
     category: {
       type: String,
       required: [true, 'Category is required'],
-      enum: ['pomade', 'shampoo', 'tools', 'accessories'],
+      enum: ['pomade', 'shampoo', 'dry-sand', 'hair-care'],
     },
     image_url: {
       type: String,

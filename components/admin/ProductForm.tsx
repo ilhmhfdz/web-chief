@@ -24,8 +24,9 @@ const DEFAULT_FORM: ProductFormData = {
   description: '',
   price: 0,
   stock: 0,
-  category: 'accessories',
+  category: 'pomade',
   image_url: '',
+  images: [],
   tags: [],
   is_active: true,
 };
@@ -47,6 +48,7 @@ export default function ProductForm({ initialData, onSuccess }: ProductFormProps
         stock: initialData.stock,
         category: initialData.category,
         image_url: initialData.image_url,
+        images: initialData.images || [],
         tags: initialData.tags,
         is_active: initialData.is_active,
       }
@@ -54,6 +56,7 @@ export default function ProductForm({ initialData, onSuccess }: ProductFormProps
   );
 
   const [tagInput, setTagInput] = useState('');
+  const [imageInput, setImageInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -76,6 +79,18 @@ export default function ProductForm({ initialData, onSuccess }: ProductFormProps
 
   const removeTag = (tag: string) => {
     handleChange('tags', form.tags.filter((t) => t !== tag));
+  };
+
+  const addImage = () => {
+    const url = imageInput.trim();
+    if (url && !(form.images || []).includes(url)) {
+      handleChange('images', [...(form.images || []), url]);
+    }
+    setImageInput('');
+  };
+
+  const removeImage = (url: string) => {
+    handleChange('images', (form.images || []).filter((u) => u !== url));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -183,9 +198,9 @@ export default function ProductForm({ initialData, onSuccess }: ProductFormProps
         </select>
       </div>
 
-      {/* Image URL */}
+      {/* Image URL (Utama) */}
       <div>
-        <label className="block text-sm font-semibold text-surface-ink mb-2">URL Gambar *</label>
+        <label className="block text-sm font-semibold text-surface-ink mb-2">URL Gambar Utama *</label>
         <input
           type="url"
           required
@@ -200,6 +215,45 @@ export default function ProductForm({ initialData, onSuccess }: ProductFormProps
             <img src={form.image_url} alt="preview" className="w-full h-full object-cover" />
           </div>
         )}
+      </div>
+
+      {/* Galeri Gambar (Tambahan) */}
+      <div>
+        <label className="block text-sm font-semibold text-surface-ink mb-2">Galeri Gambar (Opsional)</label>
+        
+        {form.images && form.images.length > 0 && (
+          <div className="flex gap-3 mb-3 flex-wrap">
+            {form.images.map((imgUrl, i) => (
+              <div key={i} className="relative w-20 h-20 rounded border border-surface-muted bg-surface-raised overflow-hidden group">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={imgUrl} alt={`gallery-${i}`} className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeImage(imgUrl)}
+                  className="absolute top-1 right-1 bg-white/90 text-red-600 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        <div className="flex gap-2">
+          <input
+            type="url"
+            value={imageInput}
+            onChange={(e) => setImageInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') { e.preventDefault(); addImage(); }
+            }}
+            className="input-field flex-1"
+            placeholder="URL gambar tambahan, tekan Enter"
+          />
+          <button type="button" onClick={addImage} className="btn-secondary px-4">
+            Tambah
+          </button>
+        </div>
       </div>
 
       {/* Tags */}
