@@ -17,7 +17,11 @@ const ANALYSIS_PROMPT = `Anda adalah barber profesional papan atas. Analisis fot
 3. Sebutkan 2-3 gaya rambut yang sebaiknya dihindari dan alasannya.
 Gunakan bahasa profesional, modern, dan langsung ke intinya. Maksimal 3 paragraf.`;
 
-const IMAGE_PROMPT = `Buat grafis analisis gaya rambut pakai foto ini. Tampilkan perbandingannya berdampingan untuk menunjukkan yang cocok buat subjek. Utamakan visual dengan label singkat. Desain elegan dan minimalis, gunakan latar belakang beige netral dengan gaya infografis bersih dan modern. Di kiri, tambah foto gaya studio ukuran besar pakai foto yang diunggah. Di kanan, buat panel dengan judul dan bagian Recommended. Di atas, tampilkan 4-5 gaya rambut dengan tanda centang. Di tengah, tambah bagian Okay dengan 4-5 gaya pakai ikon netral. Di bawah, tambah Less Flattering dengan 4-5 gaya pakai tanda X. Di footer, tambah tips styling. Pakai subjek yang konsisten, resolusi tinggi, rasio 4:5.`;
+const IMAGE_PROMPT = `Buat grafis analisis gaya rambut pakai foto ini. Tampilkan perbandingannya berdampingan untuk menunjukkan
+yang cocok buat subjek. Utamakan visual dengan label singkat. Desain elegan dan minimalis, gunakan latar belakang beige netral 
+dengan gaya infografis bersih dan modern. Di kiri, tambah foto gaya studio ukuran besar pakai foto yang diunggah. Di kanan, buat panel dengan 
+judul dan bagian Recommended. Di atas, tampilkan 4-5 gaya rambut dengan tanda centang. Di tengah, tambah bagian Okay dengan 4-5 gaya pakai ikon netral. 
+Di bawah, tambah Less Flattering dengan 4-5 gaya pakai tanda X. Di footer, tambah tips styling. Pakai subjek yang konsisten, resolusi tinggi, rasio 4:5.`;
 
 const MAX_REQUESTS_PER_WINDOW = 3;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
@@ -110,7 +114,7 @@ export async function POST(req: Request) {
     const [analysisResult, imageResult] = await Promise.all([
       // Fast text analysis with vision
       openai.chat.completions.create({
-        model: 'gpt-4o',
+        model: 'gpt-5.2',
         max_tokens: 500,
         messages: [
           {

@@ -54,7 +54,7 @@ Your foundational hair science knowledge:
 Always recommend products based specifically on the user's described condition.
 `.trim();
 
-// ── Type for AI-annotated product ─────────────────────────────────────────────
+// ── Type for AI-annotated product ────────────────
 export interface HairAdvisorRecommendation {
   product: {
     _id: string;
