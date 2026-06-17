@@ -14,6 +14,18 @@ export interface IProduct extends Document {
   images?: string[];
   tags: string[];
   is_active: boolean;
+  /**
+   * 1536-dim embedding vector (text-embedding-3-small) for AI product search.
+   * Generated from: name + category + description + tags + hair_benefits.
+   * Populated by the /scripts/embed-products.ts one-time script.
+   */
+  embedding?: number[];
+  /**
+   * Optional freeform text describing which hair conditions / problems this
+   * product addresses. Fed into the embedding for more precise RAG matching.
+   * Example: "Mengatasi ketombe, kulit kepala berminyak, mengandung zinc"
+   */
+  hair_benefits?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -62,6 +74,17 @@ const productSchema = new Schema<IProduct>(
       type: [String],
       default: [],
       index: true, // Useful for queries
+    },
+    // ── AI / RAG fields ──────────────────────────────────────────────────
+    embedding: {
+      type: [Number],
+      default: undefined,
+      // NOTE: Do NOT add a standard MongoDB index here.
+      // Vector search requires a dedicated Atlas Search Index (see atlas-vector-index.json).
+    },
+    hair_benefits: {
+      type: String,
+      default: '',
     },
     is_active: {
       type: Boolean,

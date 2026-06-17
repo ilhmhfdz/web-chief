@@ -65,8 +65,24 @@ export async function POST(req: Request, { params }: { params: { conversationId:
       conversation.handledBy = 'human';
     }
 
+    // Helper to handle transient MongoDB errors like NotWritablePrimary
+    const updateConversationWithRetry = async (updateData: any, retries = 3) => {
+      for (let i = 0; i < retries; i++) {
+        try {
+          return await Conversation.findByIdAndUpdate(params.conversationId, updateData);
+        } catch (error: any) {
+          if (i === retries - 1) throw error;
+          if (error.code === 10107 || error.message?.includes('not primary') || error.hasErrorLabel?.('RetryableWriteError')) {
+            await new Promise(res => setTimeout(res, 1000 * (i + 1))); // exponential-ish backoff
+            continue;
+          }
+          throw error;
+        }
+      }
+    };
+
     // Add user/admin message using direct DB update
-    await Conversation.findByIdAndUpdate(params.conversationId, {
+    await updateConversationWithRetry({
       $push: { messages: { senderRole: user.role === 'admin' ? 'admin' : 'user', message } },
       $set: { lastMessageAt: new Date() }
     });
@@ -93,7 +109,7 @@ export async function POST(req: Request, { params }: { params: { conversationId:
         const aiReply = await generateResponse(message, history);
 
         // Add AI message using direct DB update
-        await Conversation.findByIdAndUpdate(params.conversationId, {
+        await updateConversationWithRetry({
           $push: { messages: { senderRole: 'ai', message: aiReply } },
           $set: { lastMessageAt: new Date() }
         });

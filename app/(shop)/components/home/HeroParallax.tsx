@@ -1,43 +1,10 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, useTransform } from 'framer-motion';
 import Link from 'next/link';
 import { Play } from 'lucide-react';
 import ProductCard from '@/components/shop/ProductCard';
-
-const SLIDES = [
-  {
-    id: 0,
-    image: "/images/pose1.png",
-    subtitle: "CLASSIC SLICK BACK",
-    desc: "Timeless. Sharp. Defined.",
-    productImg: "/uploads/1780911316948-SKU-POMADE_Blue-HeroImage1Oz.webp",
-    productName: "Chief Styling Clay",
-    productDesc: "Matte strong hold",
-    productPrice: "Rp149.000"
-  },
-  {
-    id: 1,
-    image: "/images/pose2.png",
-    subtitle: "TEXTURED CROP",
-    desc: "Modern. Effortless. Bold.",
-    productImg: "/uploads/1780911316948-SKU-POMADE_Blue-HeroImage1Oz.webp", // Using same image as placeholder
-    productName: "Chief Hair Tonic",
-    productDesc: "Daily scalp refresh",
-    productPrice: "Rp129.000"
-  },
-  {
-    id: 2,
-    image: "/images/pose3.png",
-    subtitle: "EXECUTIVE CONTOUR",
-    desc: "Professional. Clean. Versatile.",
-    productImg: "/uploads/1780911316948-SKU-POMADE_Blue-HeroImage1Oz.webp",
-    productName: "Chief Styling Clay",
-    productDesc: "Matte strong hold",
-    productPrice: "Rp149.000"
-  }
-];
 
 const HERO_PRODUCTS = [
   {
@@ -47,7 +14,7 @@ const HERO_PRODUCTS = [
     description: "Matte Strong Hold",
     price: 120000,
     stock: 5,
-    category: "pomade" as const,
+    category: "pomade",
     image_url: "https://res.cloudinary.com/dvqb4tmqk/image/upload/v1781159650/ea372a22aa694008a1d7c15f9ba90121_tplv-o3syd03w52-resize-jpeg_700_0_hi3dsf.jpg",
     images: [],
     tags: [],
@@ -62,7 +29,7 @@ const HERO_PRODUCTS = [
     description: "Waterbased Strong Hold",
     price: 130000,
     stock: 30,
-    category: "pomade" as const,
+    category: "pomade",
     image_url: "https://res.cloudinary.com/dvqb4tmqk/image/upload/v1781158946/2c35d215a695439e88d739e87fccba44_tplv-o3syd03w52-resize-jpeg_700_0_sxz9x9.jpg",
     images: [],
     tags: [],
@@ -72,33 +39,15 @@ const HERO_PRODUCTS = [
   }
 ];
 
-const flipVariants = {
-  enter: (direction: number) => ({
-    rotateY: direction > 0 ? 45 : -45,
-    opacity: 0,
-    scale: 0.8,
-    filter: 'blur(8px)',
-  }),
-  center: {
-    zIndex: 1,
-    rotateY: 0,
-    opacity: 1,
-    scale: 1,
-    filter: 'blur(0px)',
-  },
-  exit: (direction: number) => ({
-    zIndex: 0,
-    rotateY: direction < 0 ? 45 : -45,
-    opacity: 0,
-    scale: 1.15,
-    filter: 'blur(8px)',
-  })
-};
+const FRAME_COUNT = 120;
 
 export default function HeroParallax() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [carouselIndex, setCarouselIndex] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+  const imagesRef = useRef<HTMLImageElement[]>([]);
+  const currentFrameRef = useRef(0);
 
   // Auto slide loop for the 2 hero products
   useEffect(() => {
@@ -107,42 +56,91 @@ export default function HeroParallax() {
     }, 4500);
     return () => clearInterval(timer);
   }, []);
+
+  // Preload Image Sequence
+  useEffect(() => {
+    const loadImages = async () => {
+      const loadedImages: HTMLImageElement[] = [];
+      let loadedCount = 0;
+
+      for (let i = 1; i <= FRAME_COUNT; i++) {
+        const img = new Image();
+        const frameNumber = i.toString().padStart(3, '0');
+        // Preload frame_001.webp to frame_120.webp
+        img.src = `/images/sequence/frame_${frameNumber}.webp`;
+        
+        await new Promise((resolve) => {
+          img.onload = () => {
+            loadedCount++;
+            resolve(null);
+          };
+          img.onerror = () => resolve(null); // Continue even if one fails
+        });
+        loadedImages.push(img);
+      }
+      imagesRef.current = loadedImages;
+      setImagesLoaded(true);
+      
+      // Draw first frame once loaded
+      if (loadedImages[0] && canvasRef.current) {
+        renderFrame(0);
+      }
+    };
+
+    loadImages();
+  }, []);
+
+  const renderFrame = useCallback((index: number) => {
+    if (!canvasRef.current || !imagesRef.current[index]) return;
+    
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const img = imagesRef.current[index];
+    
+    // Set canvas dimensions to match CSS size or native image size
+    if (canvas.width !== img.width || canvas.height !== img.height) {
+      canvas.width = img.width;
+      canvas.height = img.height;
+    }
+
+    // Force high-quality rendering algorithms to prevent pixelation/blurriness
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  }, []);
+
   // Scroll-linked animation values
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start start", "end end"]
+    offset: ["start start", "end start"] // Animates as the hero section scrolls out of view
   });
 
-  // Track active index for pagination dots
+  // Track scroll and draw frames
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    if (latest < 0.33) setActiveIndex(0);
-    else if (latest < 0.66) setActiveIndex(1);
-    else setActiveIndex(2);
+    if (!imagesLoaded) return;
+    
+    // Calculate the frame index based on scroll progress (0 to 1)
+    const frameIndex = Math.min(
+      FRAME_COUNT - 1,
+      Math.max(0, Math.floor(latest * FRAME_COUNT))
+    );
+
+    if (frameIndex !== currentFrameRef.current) {
+      currentFrameRef.current = frameIndex;
+      requestAnimationFrame(() => renderFrame(frameIndex));
+    }
   });
 
   // Overall container movement (moves up and scales to overlay text)
-  const yOffset = useTransform(scrollYProgress, [0, 1], ["0%", "-25%"]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
-
-  // Individual image 3D scrub animations
-  const img0RotateY = useTransform(scrollYProgress, [0, 0.33], [0, -90]);
-  const img0Opacity = useTransform(scrollYProgress, [0, 0.25, 0.33], [1, 1, 0]);
-
-  const img1RotateY = useTransform(scrollYProgress, [0.16, 0.33, 0.66, 0.83], [90, 0, 0, -90]);
-  const img1Opacity = useTransform(scrollYProgress, [0.16, 0.33, 0.66, 0.83], [0, 1, 1, 0]);
-
-  const img2RotateY = useTransform(scrollYProgress, [0.66, 0.83, 1], [90, 0, 0]);
-  const img2Opacity = useTransform(scrollYProgress, [0.66, 0.83, 1], [0, 1, 1]);
-
-  const imageAnims = [
-    { rotateY: img0RotateY, opacity: img0Opacity },
-    { rotateY: img1RotateY, opacity: img1Opacity },
-    { rotateY: img2RotateY, opacity: img2Opacity },
-  ];
+  const yOffset = useTransform(scrollYProgress, [0, 1], ["0%", "-15%"]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
 
   return (
-    <div ref={containerRef} className="relative h-[200vh] -mt-20">
-      <div className="sticky top-0 h-screen bg-[#f3efe8] flex flex-col pt-20 px-6 md:px-12 lg:px-16 overflow-hidden">
+    <div ref={containerRef} className="relative h-screen min-h-[700px] -mt-20 bg-[#f3efe8] flex flex-col pt-20 px-6 md:px-12 lg:px-16 overflow-hidden">
         {/* 3-column grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 w-full max-w-[1600px] mx-auto h-full pt-8 pb-8 relative">
 
@@ -177,7 +175,6 @@ export default function HeroParallax() {
               Premium grooming, smart hairstyle preview, and seamless booking in one place.
             </motion.p>
 
-            {/* Book Now Button moved here */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -188,51 +185,34 @@ export default function HeroParallax() {
                 BOOK NOW
               </Link>
             </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="mt-auto flex items-center gap-2 text-[#8e8b82] text-[10px] font-bold tracking-[0.25em] pb-4"
-            >
-              <div className="flex gap-2 items-center">
-                {[0, 1, 2, 3].map((idx) => (
-                  <span
-                    key={idx}
-                    className={`h-[1.5px] transition-all duration-500 ${idx === activeIndex ? 'w-8 bg-[#1a1a1a]' : 'w-4 bg-[#d6d2c9]'}`}
-                  ></span>
-                ))}
-              </div>
-              <span className="ml-5">{activeIndex + 1} / 4</span>
-            </motion.div>
           </div>
 
-          {/* Center Column - 3D Images */}
+          {/* Center Column - 3D Sequence Canvas */}
           <motion.div 
-            className="absolute bottom-0 left-0 right-0 h-[65vh] lg:static lg:col-span-5 lg:h-full flex flex-col justify-center items-center lg:-mx-6 self-end -mb-8 lg:-mb-10 z-30 pointer-events-none lg:pointer-events-auto" 
-            style={{ perspective: '1200px', y: yOffset, scale }}
+            className="absolute bottom-0 left-0 right-0 h-[70vh] lg:static lg:col-span-5 lg:h-full flex flex-col justify-end items-center lg:-mx-6 self-end z-30 pointer-events-none lg:pointer-events-auto" 
+            style={{ scale }}
           >
-            <div className="relative w-full h-full flex items-center justify-center pointer-events-none">
-              {SLIDES.slice(0, 3).map((slide, idx) => (
-                <motion.div
-                  key={idx}
-                  style={{
-                    rotateY: imageAnims[idx].rotateY,
-                    opacity: imageAnims[idx].opacity,
-                    transformStyle: "preserve-3d"
-                  }}
-                  className="absolute inset-0 w-full h-full flex flex-col justify-center items-center origin-center mix-blend-multiply"
-                >
-                  <img
-                    src={slide.image}
-                    alt={slide.subtitle}
-                    className="w-[110%] max-w-[110%] h-full object-contain object-bottom absolute inset-0 z-0 pointer-events-auto"
-                  />
-                </motion.div>
-              ))}
+            <div className="relative w-full h-full flex items-end justify-center pointer-events-none mix-blend-multiply">
+              {/* Canvas for rendering the image sequence */}
+              <canvas
+                ref={canvasRef}
+                className="w-[130%] lg:w-[115%] max-w-none h-[105%] lg:h-full object-contain object-bottom absolute bottom-0 z-0 pointer-events-auto"
+              />
+              
+              {/* Fallback/Loading State */}
+              <AnimatePresence>
+                {!imagesLoaded && (
+                  <motion.div 
+                    initial={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 flex items-center justify-center z-10 bg-[#f3efe8]"
+                  >
+                    <div className="w-8 h-8 rounded-full border-2 border-[#1a1a1a] border-t-transparent animate-spin" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
-            {/* Try AI Button moved to a more balanced position */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -257,7 +237,6 @@ export default function HeroParallax() {
               transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
               className="w-full max-w-[280px] relative mb-12 z-50 group"
             >
-              {/* Premium Glow Aura behind the card */}
               <div className="absolute -inset-1 bg-gradient-to-tr from-[#1a1a1a]/10 to-[#8e8b82]/30 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition-opacity duration-700"></div>
 
               <div className="relative bg-white rounded-2xl overflow-hidden shadow-[0_8px_40px_rgb(0,0,0,0.12)] border border-white/60 p-1">
@@ -271,14 +250,13 @@ export default function HeroParallax() {
                     className="bg-white rounded-xl overflow-hidden"
                   >
                     <ProductCard
-                      product={HERO_PRODUCTS[carouselIndex]}
+                      product={HERO_PRODUCTS[carouselIndex] as any}
                       index={carouselIndex}
                     />
                   </motion.div>
                 </AnimatePresence>
               </div>
 
-              {/* Card dots (Carousel Indicators) */}
               <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
                 {HERO_PRODUCTS.map((_, idx) => (
                   <div
@@ -325,7 +303,6 @@ export default function HeroParallax() {
 
           </div>
         </div>
-      </div>
     </div>
   );
 }
