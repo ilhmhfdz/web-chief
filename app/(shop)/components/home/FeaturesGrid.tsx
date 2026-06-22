@@ -1,9 +1,43 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Heart, Clock } from 'lucide-react';
+import { Sparkles, Heart, Clock, Loader2 } from 'lucide-react';
 
 export default function FeaturesGrid() {
+  const [input, setInput] = useState('');
+  const [recommendation, setRecommendation] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+
+    setIsLoading(true);
+    setError('');
+    
+    try {
+      const res = await fetch('/api/ai/haircut-advisor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ textInput: input }),
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Terjadi kesalahan.');
+      }
+      
+      setRecommendation(data.recommendation);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <section className="py-24 lg:py-32 bg-white relative overflow-hidden">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16">
@@ -77,32 +111,59 @@ export default function FeaturesGrid() {
               </p>
             </div>
 
-            <hr className="border-[#e5e5e5] my-12 max-w-[500px]" />
-
-            {/* 3 Small Features */}
-            <div className="grid grid-cols-3 gap-6 max-w-[500px] mb-12">
-              <div>
-                <div className="w-12 h-12 border border-[#e5e5e5] flex items-center justify-center mb-4 text-[#1a1a1a]">
-                  <Sparkles className="w-5 h-5 stroke-[1.5]" />
-                </div>
-                <h4 className="text-[#1a1a1a] text-[13px] font-bold mb-1.5">Quality</h4>
-                <p className="text-[#8e8b82] text-[11px] leading-relaxed">Uncompromising standards</p>
-              </div>
-              
-              <div>
-                <div className="w-12 h-12 border border-[#e5e5e5] flex items-center justify-center mb-4 text-[#1a1a1a]">
-                  <Heart className="w-5 h-5 stroke-[1.5]" />
-                </div>
-                <h4 className="text-[#1a1a1a] text-[13px] font-bold mb-1.5">Passion</h4>
-                <p className="text-[#8e8b82] text-[11px] leading-relaxed">Artisan dedication</p>
-              </div>
-
-              <div>
-                <div className="w-12 h-12 border border-[#e5e5e5] flex items-center justify-center mb-4 text-[#1a1a1a]">
-                  <Clock className="w-5 h-5 stroke-[1.5]" />
-                </div>
-                <h4 className="text-[#1a1a1a] text-[13px] font-bold mb-1.5">Timeless</h4>
-                <p className="text-[#8e8b82] text-[11px] leading-relaxed">Enduring style</p>
+            {/* AI Haircut Advisor Form */}
+            <div className="max-w-[500px] mb-12 mt-8">
+              <div className="p-6 border border-[#e5e5e5] bg-[#fafafa]/50 backdrop-blur-sm relative overflow-hidden group">
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#1a1a1a]/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                
+                <h4 className="text-[#1a1a1a] text-[11px] tracking-[0.2em] font-bold uppercase mb-4 flex items-center gap-2">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Ask The Expert Barber
+                </h4>
+                
+                <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
+                  <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Ceritakan kondisi atau tipe rambut Anda... (cth: Rambut lurus, tipis, dan mudah lepek)"
+                    className="w-full h-24 bg-transparent border-b border-[#e5e5e5] text-[13px] text-[#1a1a1a] placeholder-[#8e8b82] focus:outline-none focus:border-[#1a1a1a] transition-colors resize-none py-2"
+                    disabled={isLoading}
+                  />
+                  
+                  {error && <p className="text-red-500 text-[11px]">{error}</p>}
+                  
+                  {recommendation ? (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-4 p-5 bg-white border border-[#e5e5e5] shadow-[0_4px_20px_rgba(0,0,0,0.03)]"
+                    >
+                      <p className="text-[#5c5852] text-[13px] leading-relaxed italic">"{recommendation}"</p>
+                      <button 
+                        type="button"
+                        onClick={() => { setRecommendation(''); setInput(''); }}
+                        className="mt-4 text-[10px] uppercase tracking-wider font-bold text-[#1a1a1a] border-b border-[#1a1a1a] pb-0.5"
+                      >
+                        Tanya Lagi
+                      </button>
+                    </motion.div>
+                  ) : (
+                    <button 
+                      type="submit"
+                      disabled={isLoading || !input.trim()}
+                      className="flex items-center justify-center gap-2 w-full py-3 bg-[#1a1a1a] text-white text-[10px] font-bold tracking-[0.15em] uppercase hover:bg-[#333] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          Menganalisis...
+                        </>
+                      ) : (
+                        'Dapatkan Rekomendasi'
+                      )}
+                    </button>
+                  )}
+                </form>
               </div>
             </div>
 
