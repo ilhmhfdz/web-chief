@@ -140,12 +140,12 @@ export default function HeroParallax() {
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
 
   return (
-    <div ref={containerRef} className="relative h-screen min-h-[700px] -mt-20 bg-[#f3efe8] flex flex-col pt-20 px-6 md:px-12 lg:px-16 overflow-hidden">
+    <div ref={containerRef} className="relative min-h-screen -mt-20 bg-[#f3efe8] flex flex-col pt-20 px-6 md:px-12 lg:px-16 overflow-hidden pb-0">
         {/* 3-column grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 w-full max-w-[1600px] mx-auto h-full pt-8 pb-8 relative">
+          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-0 lg:gap-6 flex-1 w-full max-w-[1600px] mx-auto lg:h-screen pt-8 pb-0 lg:pb-8 relative min-h-[calc(100svh-5rem)] lg:min-h-0">
 
           {/* Left Column */}
-          <div className="lg:col-span-4 flex flex-col justify-start lg:justify-center h-full relative z-20 pt-12 lg:pt-20 pointer-events-none">
+            <div className="lg:col-span-4 flex flex-col justify-start lg:justify-center lg:h-full relative z-20 pt-8 lg:pt-20 pointer-events-none">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -160,7 +160,7 @@ export default function HeroParallax() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-display text-[3.5rem] lg:text-[4.5rem] xl:text-[5.5rem] font-bold leading-[1.05] tracking-tight mb-6 whitespace-nowrap"
+              className="font-display text-[3.5rem] lg:text-[4.5rem] xl:text-[5.5rem] font-bold leading-[1.05] tracking-tight mb-3 lg:mb-6 whitespace-nowrap"
             >
               <span className="text-[#1A1A1A]">Find the Cut</span><br />
               <span className="text-[#a8a49c]">That Fits You</span>
@@ -170,7 +170,7 @@ export default function HeroParallax() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-[#8e8b82] text-[14px] lg:text-[15px] max-w-[320px] mb-8 leading-[1.6]"
+              className="text-[#8e8b82] text-[14px] lg:text-[15px] max-w-[320px] mb-5 lg:mb-8 leading-[1.6]"
             >
               Premium grooming, smart hairstyle preview, and seamless booking in one place.
             </motion.p>
@@ -179,7 +179,7 @@ export default function HeroParallax() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="mb-12 pointer-events-auto"
+              className="mb-4 lg:mb-12 pointer-events-auto"
             >
               <Link href="/booking" className="inline-flex items-center justify-center px-8 py-3.5 rounded-[4px] font-bold text-[10px] tracking-[0.15em] border border-[#1a1a1a] text-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-white transition-colors text-center leading-tight">
                 BOOK NOW
@@ -189,14 +189,16 @@ export default function HeroParallax() {
 
           {/* Center Column - 3D Sequence Canvas */}
           <motion.div 
-            className="absolute bottom-0 left-0 right-0 h-[70vh] lg:static lg:col-span-5 lg:h-full flex flex-col justify-end items-center lg:-mx-6 self-end z-30 pointer-events-none lg:pointer-events-auto" 
+            className="absolute inset-0 lg:relative lg:inset-auto lg:col-span-5 lg:h-full flex flex-col justify-end items-center lg:-mx-6 z-10 lg:z-30 pointer-events-none lg:pointer-events-auto" 
             style={{ scale }}
           >
-            <div className="relative w-full h-full flex items-end justify-center pointer-events-none mix-blend-multiply">
+            {/* Mobile: absolute full-bleed canvas, desktop: normal flow */}
+            <div className="relative w-full h-full flex items-end justify-center pointer-events-none mix-blend-multiply
+              lg:min-h-0">
               {/* Canvas for rendering the image sequence */}
               <canvas
                 ref={canvasRef}
-                className="w-[130%] lg:w-[115%] max-w-none h-[105%] lg:h-full object-contain object-bottom absolute bottom-0 z-0 pointer-events-auto"
+                className="w-full lg:w-[115%] max-w-none h-full object-contain object-bottom absolute bottom-0 z-0 pointer-events-auto"
               />
               
               {/* Fallback/Loading State */}
@@ -213,11 +215,12 @@ export default function HeroParallax() {
               </AnimatePresence>
             </div>
 
+            {/* AI CTA Button — absolute bottom on mobile, absolute bottom-right on desktop */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="absolute bottom-6 right-6 lg:right-36 md:right-24 z-50 pointer-events-auto"
+              className="absolute bottom-8 inset-x-0 flex justify-center lg:flex-none lg:inset-x-auto lg:justify-start lg:bottom-6 lg:right-36 z-50 pointer-events-auto"
             >
               <Link href="/ai-recommendation" className="group flex items-center justify-center gap-3 bg-white/90 backdrop-blur-md border border-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] px-6 py-3.5 rounded-full text-[#1a1a1a] hover:bg-white transition-all hover:scale-105 w-auto whitespace-nowrap">
                 <div className="w-6 h-6 rounded-full bg-[#1a1a1a] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
